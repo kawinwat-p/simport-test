@@ -2,83 +2,91 @@ import { expect, type Locator, type Page } from "@playwright/test";
 
 export class ImportPage {
   private readonly page: Page;
-  private readonly ManualImportButton: Locator;
-  private readonly AIImportButton: Locator;
-  private readonly StockButton: Locator;
-  private readonly GoldButton: Locator;
-  private readonly FundButton: Locator;
+  private readonly manualImportButton: Locator;
+  private readonly aiImportButton: Locator;
+  private readonly stockButton: Locator;
+  private readonly goldButton: Locator;
+  private readonly fundButton: Locator;
 
-  private readonly EntityInput: Locator;
-  private readonly DescriptionInput: Locator;
-  private readonly DateInput: Locator;
-  private readonly TimeInput: Locator;
+  private readonly entityInput: Locator;
+  private readonly descriptionInput: Locator;
+  private readonly dateInput: Locator;
+  private readonly timeInput: Locator;
 
-  private readonly StockNameInput: Locator;
-  private readonly StockPricePerUnitInput: Locator;
-  private readonly StockQuantityInput: Locator;
+  private readonly stockNameInput: Locator;
+  private readonly stockPricePerUnitInput: Locator;
+  private readonly stockQuantityInput: Locator;
 
-  private readonly GoldNameInput: Locator;
-  private readonly GoldPriceInput: Locator;
-  private readonly GoldPurityInput: Locator;
-  private readonly GoldQuantityInput: Locator;
+  private readonly goldNameInput: Locator;
+  private readonly goldPriceInput: Locator;
+  private readonly goldPurityInput: Locator;
+  private readonly goldQuantityInput: Locator;
 
-  private readonly FundNameInput: Locator;
-  private readonly FundNAVInput: Locator;
-  private readonly FundQuantityInput: Locator;
+  private readonly fundNameInput: Locator;
+  private readonly fundNAVInput: Locator;
+  private readonly fundQuantityInput: Locator;
 
-  private readonly SaveButton: Locator;
-  private readonly CloseModalButton: Locator;
+  private readonly saveButton: Locator;
+  private readonly closeModalButton: Locator;
+  private readonly modal: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.ManualImportButton = page.getByRole("button", {
+    this.manualImportButton = page.getByRole("button", {
       name: "container กรอกข้อมูลเอง (Manual Import)",
     });
-    this.AIImportButton = page.getByRole("button", {
+    this.aiImportButton = page.getByRole("button", {
       name: "file-image สแกนด้วย AI (AI Import)",
     });
-    this.StockButton = page.getByRole("button", { name: "stock หุ้น" });
-    this.GoldButton = page.getByRole("button", { name: "gold ทอง" });
-    this.FundButton = page.getByRole("button", { name: "fund กองทุน" });
-    this.EntityInput = page.getByLabel("ประเภททรัพย์สิน (Entity)");
-    this.DescriptionInput = page.getByLabel("บันทึกการลงทุน");
-    this.DateInput = page.getByLabel("วันที่ทำรายการ");
-    this.TimeInput = page.getByLabel("เวลาทำรายการ");
-    this.StockNameInput = page.getByLabel("ชื่อหุ้น");
-    this.StockPricePerUnitInput = page.getByLabel("ราคาต่อหน่วย");
-    this.StockQuantityInput = page.getByLabel("จำนวนหน่วยลงทุน");
-    this.GoldNameInput = page.getByLabel("ชื่อทอง");
-    this.GoldPriceInput = page.getByLabel("ราคารวม");
-    this.GoldPurityInput = page.getByLabel("ความบริสุทธิ์");
-    this.GoldQuantityInput = page
+    this.stockButton = page.getByRole("button", { name: "stock หุ้น" });
+    this.goldButton = page.getByRole("button", { name: "gold ทอง" });
+    this.fundButton = page.getByRole("button", { name: "fund กองทุน" });
+    this.entityInput = page.getByLabel("ประเภททรัพย์สิน (Entity)");
+    this.descriptionInput = page.getByLabel("บันทึกการลงทุน");
+    this.dateInput = page.getByLabel("วันที่ทำรายการ");
+    this.timeInput = page.getByLabel("เวลาทำรายการ");
+    this.stockNameInput = page.getByLabel("ชื่อหุ้น");
+    this.stockPricePerUnitInput = page.getByLabel("ราคาต่อหน่วย");
+    this.stockQuantityInput = page
+      .locator('.ant-form-item:has(label:has-text("จำนวนหน่วยลงทุน")) input')
+      .first();
+    this.goldNameInput = page.getByLabel("ชื่อทอง");
+    this.goldPriceInput = page.getByLabel("ราคารวม");
+    this.goldPurityInput = page.getByLabel("ความบริสุทธิ์");
+    this.goldQuantityInput = page
       .locator('.ant-form-item:has(label:has-text("จำนวนหน่วย")) input')
       .first();
-    this.FundNameInput = page.getByLabel("ชื่อกองทุน");
-    this.FundNAVInput = page.getByLabel("NAV");
-    this.FundQuantityInput = page.getByLabel("จำนวนหน่วยลงทุน");
-    this.SaveButton = page.getByRole("button", { name: "บันทึก" });
-    this.CloseModalButton = page.getByRole("button", { name: "Close" }).first();
+    this.fundNameInput = page.getByLabel("ชื่อกองทุน");
+    this.fundNAVInput = page.getByLabel("NAV");
+    this.fundQuantityInput = page
+      .locator('.ant-form-item:has(label:has-text("จำนวนหน่วยลงทุน")) input')
+      .first();
+    this.saveButton = page.getByRole("button", { name: "บันทึก" });
+    this.modal = page.locator(".ant-modal");
+    this.closeModalButton = this.modal
+      .getByRole("button", { name: "Close" })
+      .first();
   }
 
   // Actions
   async clickManualImportButton() {
-    await this.ManualImportButton.click();
+    await this.manualImportButton.click();
   }
 
   async clickAIImportButton() {
-    await this.AIImportButton.click();
+    await this.aiImportButton.click();
   }
 
   async clickStockButton() {
-    await this.StockButton.click();
+    await this.stockButton.click();
   }
 
   async clickGoldButton() {
-    await this.GoldButton.click();
+    await this.goldButton.click();
   }
 
   async clickFundButton() {
-    await this.FundButton.click();
+    await this.fundButton.click();
   }
 
   async fillStockImportForm(
@@ -90,13 +98,13 @@ export class ImportPage {
     stockPricePerUnit: string,
     stockQuantity: string,
   ) {
-    await this.EntityInput.fill(entity);
-    await this.DescriptionInput.fill(description);
-    await this.DateInput.fill(date);
-    await this.TimeInput.fill(time);
-    await this.StockNameInput.fill(stockName);
-    await this.StockPricePerUnitInput.fill(stockPricePerUnit);
-    await this.StockQuantityInput.fill(stockQuantity);
+    await this.entityInput.fill(entity);
+    await this.descriptionInput.fill(description);
+    await this.dateInput.fill(date);
+    await this.timeInput.fill(time);
+    await this.stockNameInput.fill(stockName);
+    await this.stockPricePerUnitInput.fill(stockPricePerUnit);
+    await this.stockQuantityInput.fill(stockQuantity);
   }
 
   async fillGoldImportForm(
@@ -109,16 +117,16 @@ export class ImportPage {
     goldPurity: string,
     goldQuantity: string,
   ) {
-    await this.GoldNameInput.click();
+    await this.goldNameInput.click();
     await this.page.getByText(goldName, { exact: true }).click();
-    await this.GoldPurityInput.click();
+    await this.goldPurityInput.click();
     await this.page.getByText(goldPurity, { exact: true }).last().click();
-    await this.EntityInput.fill(entity);
-    await this.DescriptionInput.fill(description);
-    await this.DateInput.fill(date);
-    await this.TimeInput.fill(time);
-    await this.GoldPriceInput.fill(goldPrice);
-    await this.GoldQuantityInput.fill(goldQuantity);
+    await this.entityInput.fill(entity);
+    await this.descriptionInput.fill(description);
+    await this.dateInput.fill(date);
+    await this.timeInput.fill(time);
+    await this.goldPriceInput.fill(goldPrice);
+    await this.goldQuantityInput.fill(goldQuantity);
   }
 
   async fillFundImportForm(
@@ -130,18 +138,19 @@ export class ImportPage {
     fundNAV: string,
     fundQuantity: string,
   ) {
-    await this.EntityInput.fill(entity);
-    await this.DescriptionInput.fill(description);
-    await this.DateInput.fill(date);
-    await this.TimeInput.fill(time);
-    await this.FundNameInput.fill(fundName);
-    await this.FundNAVInput.fill(fundNAV);
-    await this.FundQuantityInput.fill(fundQuantity);
+    await this.entityInput.fill(entity);
+    await this.descriptionInput.fill(description);
+    await this.dateInput.fill(date);
+    await this.timeInput.fill(time);
+    await this.fundNameInput.fill(fundName);
+    await this.fundNAVInput.fill(fundNAV);
+    await this.fundQuantityInput.fill(fundQuantity);
   }
 
   async clickSaveButton() {
-    await this.SaveButton.click();
-    await this.CloseModalButton.click();
+    await this.saveButton.click();
+    await this.page.waitForTimeout(2000);
+    await this.closeModalButton.click();
   }
 
   // Assertions

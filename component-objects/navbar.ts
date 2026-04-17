@@ -21,11 +21,11 @@ export class Navbar {
     this.signUpButton = page.getByRole("button", { name: "สมัครสมาชิก" });
     this.profileMenu = page.locator(`#Vector`);
     this.logOutButton = page.getByRole("button", { name: "ออกจากระบบ" });
-    this.allAssetsMenu = page.getByText("ทรัพย์สินทั้งหมด", { exact: true });
-    this.stockMenu = page.getByText("หุ้น", { exact: true });
-    this.goldMenu = page.getByText("ทอง", { exact: true });
-    this.fundMenu = page.getByText("กองทุน", { exact: true });
-    this.importMenu = page.getByText("เพิ่มทรัพย์สิน", { exact: true });
+    this.allAssetsMenu = page.getByText("ทรัพย์สินทั้งหมด", { exact: true }).first();
+    this.stockMenu = page.getByText("หุ้น", { exact: true }).first();
+    this.goldMenu = page.getByText("ทอง", { exact: true }).first();
+    this.fundMenu = page.getByText("กองทุน", { exact: true }).first();
+    this.importMenu = page.getByText("เพิ่มทรัพย์สิน", { exact: true }).first();
   }
 
   // Actions

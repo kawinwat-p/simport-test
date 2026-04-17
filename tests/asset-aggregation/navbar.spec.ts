@@ -42,7 +42,7 @@ test.describe("Asset Aggregation - Navbar", () => {
   test("TEST-AA-52: Click Stock Button In Navbar", async ({
     navBar,
     finnomenaPage,
-    stockPage,
+    assetPage,
     page,
   }) => {
     //test step
@@ -52,13 +52,13 @@ test.describe("Asset Aggregation - Navbar", () => {
     await navBar.clickStock();
 
     //test output
-    await stockPage.expectStockPage();
+    await assetPage.expectStockPage();
   });
 
   test("TEST-AA-53: Click Gold Button In Navbar", async ({
     navBar,
     finnomenaPage,
-    goldPage,
+    assetPage,
     page,
   }) => {
     //test step
@@ -68,13 +68,13 @@ test.describe("Asset Aggregation - Navbar", () => {
     await navBar.clickGold();
 
     //test output
-    await goldPage.expectGoldPage();
+    await assetPage.expectGoldPage();
   });
 
   test("TEST-AA-54: Click Fund Button In Navbar", async ({
     navBar,
     finnomenaPage,
-    fundPage,
+    assetPage,
     page,
   }) => {
     //test step
@@ -84,7 +84,7 @@ test.describe("Asset Aggregation - Navbar", () => {
     await navBar.clickFund();
 
     //test output
-    await fundPage.expectFundPage();
+    await assetPage.expectFundPage();
   });
 
   test("TEST-AA-55: Click Import Button In Navbar", async ({
