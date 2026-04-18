@@ -25,8 +25,12 @@ export class FinnomenaPage {
       exact: true,
     });
     this.nextButton = page.getByRole("button", { name: "ต่อไป" });
-    this.signInButton = page.getByRole("button", { name: "ลงชื่อเข้าใช้" });
-    this.signUpButton = page.getByRole("button", { name: "สมัครสมาชิก" });
+    this.signInButton = page
+      .getByRole("button", { name: "ลงชื่อเข้าใช้" })
+      .first();
+    this.signUpButton = page
+      .getByRole("button", { name: "สมัครสมาชิก" })
+      .first();
   }
 
   //Actions

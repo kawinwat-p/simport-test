@@ -22,13 +22,18 @@ export class AssetPage {
   private readonly quantityInput: Locator;
   private readonly timeInput: Locator;
   private readonly saveTransactionButton: Locator;
+  private readonly importButton: Locator;
+  private readonly calculatorQuantityInput: Locator;
+  private readonly calculatorUnitSelect: Locator;
+  private readonly calculatorOrnamentButton: Locator;
+  private readonly transactionTable: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.graph = page.locator("canvas");
     this.assetTable = page.locator(".ant-table-cell");
     this.closeModalButton = page.getByRole("button", { name: "Close" }).first();
-    this.modal = page.locator(".ant-modal");
+    this.modal = page.locator(".ant-modal").last();
     this.ellipsisButtons = page.locator(
       `//*[local-name()='path' and @fill='#092640']`,
     );
@@ -55,6 +60,13 @@ export class AssetPage {
     this.saveTransactionButton = this.modal.getByRole("button", {
       name: "บันทึก",
     });
+    this.importButton = page.getByRole("columnheader", { name: "plus-circle" });
+    this.calculatorQuantityInput = page.locator(`input[type="text"]`);
+    this.calculatorUnitSelect = page.locator(".ant-select-selector").last();
+    this.calculatorOrnamentButton = page
+      .locator("input.ant-radio-input")
+      .last();
+    this.transactionTable = this.modal.locator(".ant-table-cell");
   }
 
   // Actions
@@ -129,8 +141,27 @@ export class AssetPage {
 
   async getRecentPricePerUnit(order: number) {
     const data = await this.assetTable.allTextContents();
-    const index = (order + 2) * 8 - 5;
+    const index = order * 8 + 11;
     return data[index];
+  }
+
+  async clickImportButton() {
+    await this.importButton.click();
+  }
+
+  async fillGoldCalculator(
+    quantity: string,
+    isBaht: boolean,
+    isOrnament: boolean,
+  ) {
+    if (isBaht) {
+      await this.calculatorUnitSelect.click();
+      await this.page.getByRole("option", { name: "บาท" }).click();
+    }
+    if (isOrnament) {
+      await this.calculatorOrnamentButton.check();
+    }
+    await this.calculatorQuantityInput.fill(quantity);
   }
 
   // Assertions
@@ -168,10 +199,10 @@ export class AssetPage {
     ) {
       await expect(this.page.getByText(`THB ${netWorth}`)).toBeVisible();
       await expect(
-        this.page.getByText(`${unrealized} (${unrealizedPercentage})`),
+        this.page.getByText(`${unrealized} (${unrealizedPercentage})`).first(),
       ).toBeVisible();
       await expect(
-        this.page.getByText(`${realized} (${realizedPercentage})`),
+        this.page.getByText(`${realized} (${realizedPercentage})`).last(),
       ).toBeVisible();
     } else {
       await expect(this.page.getByText("THB").first()).toBeVisible();
@@ -196,26 +227,35 @@ export class AssetPage {
     netWorth?: string,
     cost?: string,
     unrealized?: string,
+    order?: number,
   ) {
-    const data = JSON.stringify(await this.assetTable.allTextContents());
-    console.log(data);
-
-    if (entity && name && quantity && pricePerUnit && netWorth && cost) {
-      expect(data).toContain(entity);
-      expect(data).toContain(name);
-      expect(data).toContain(quantity);
-      expect(data).toContain(pricePerUnit);
-      expect(data).toContain(netWorth);
-      expect(data).toContain(cost);
-      expect(data).toContain(unrealized);
+    const data = await this.assetTable.allTextContents();
+    if (
+      entity &&
+      name &&
+      quantity &&
+      pricePerUnit &&
+      netWorth &&
+      cost &&
+      unrealized &&
+      order
+    ) {
+      const baseIndex = order * 8;
+      expect(data[baseIndex + 8]).toEqual(entity);
+      expect(data[baseIndex + 9]).toEqual(name);
+      expect(data[baseIndex + 10]).toEqual(quantity);
+      expect(data[baseIndex + 11]).toEqual(pricePerUnit);
+      expect(data[baseIndex + 12]).toEqual(netWorth);
+      expect(data[baseIndex + 13]).toEqual(cost);
+      expect(data[baseIndex + 14]).toEqual(unrealized);
     } else {
-      expect(data).toContain("ประเภท");
-      expect(data).toContain("รายการทอง");
-      expect(data).toContain("จำนวน (บาท)");
-      expect(data).toContain("ราคาตลาด (บาท)");
-      expect(data).toContain("มูลค่าปัจจุบัน (บาท)");
-      expect(data).toContain("ราคาต้นทุน (บาท)");
-      expect(data).toContain("กำไร/ขาดทุน (Unrealized)");
+      expect(data[0]).toEqual("ประเภท");
+      expect(data[1]).toEqual("รายการทอง");
+      expect(data[2]).toEqual("จำนวน (บาท)");
+      expect(data[3]).toEqual("ราคาตลาด (บาท)");
+      expect(data[4]).toEqual("มูลค่าปัจจุบัน (บาท)");
+      expect(data[5]).toEqual("ราคาต้นทุน (บาท)");
+      expect(data[6]).toEqual("กำไร/ขาดทุน (Unrealized)");
     }
   }
 
@@ -261,7 +301,7 @@ export class AssetPage {
   }
 
   async expectNoData() {
-    await expect(this.page.getByText("No data").last()).toBeVisible();
+    await expect(this.page.getByText("ไม่พบข้อมูล").last()).toBeVisible();
   }
 
   async expectGoldCalculator(quantity?: string) {
@@ -318,8 +358,10 @@ export class AssetPage {
     totalCost?: string,
     realized?: string,
     sellFrom?: string,
+    order?: number,
   ) {
-    const data = JSON.stringify(await this.assetTable.allTextContents());
+    const data = await this.transactionTable.allTextContents();
+    console.log(data);
 
     if (
       date &&
@@ -328,23 +370,25 @@ export class AssetPage {
       pricePerUnit &&
       totalCost &&
       realized &&
-      sellFrom
+      sellFrom &&
+      order !== undefined
     ) {
-      expect(data).toContain(date);
-      expect(data).toContain(type);
-      expect(data).toContain(quantity);
-      expect(data).toContain(pricePerUnit);
-      expect(data).toContain(totalCost);
-      expect(data).toContain(realized);
-      expect(data).toContain(sellFrom);
+      const baseIndex = order * 8;
+      expect(data[baseIndex + 8]).toEqual(date);
+      expect(data[baseIndex + 9]).toEqual(type);
+      expect(data[baseIndex + 10]).toEqual(quantity);
+      expect(data[baseIndex + 11]).toEqual(pricePerUnit);
+      expect(data[baseIndex + 12]).toEqual(totalCost);
+      expect(data[baseIndex + 13]).toEqual(realized);
+      expect(data[baseIndex + 14]).toEqual(sellFrom);
     } else {
-      expect(data).toContain("วันที่");
-      expect(data).toContain("ประเภท");
-      expect(data).toContain("จำนวน (บาท)");
-      expect(data).toContain("ราคาตลาด (บาท)");
-      expect(data).toContain("ราคารวม (บาท)");
-      expect(data).toContain("กำไร/ขาดทุน (Realized)");
-      expect(data).toContain("ขายจาก");
+      expect(data[0]).toContain("วันที่");
+      expect(data[1]).toContain("ประเภท");
+      expect(data[2]).toContain("จำนวน (บาท)");
+      expect(data[3]).toContain("ราคาตลาด (บาท)");
+      expect(data[4]).toContain("ราคารวม (บาท)");
+      expect(data[5]).toContain("กำไร/ขาดทุน (Realized)");
+      expect(data[6]).toContain("ขายจาก");
     }
   }
 
@@ -404,5 +448,9 @@ export class AssetPage {
       expect(data).toContain("มูลค่าปัจจุบัน (บาท)");
       expect(this.modal.getByText("ราคาต่อหน่วยปัจจุบัน")).toBeVisible();
     }
+  }
+
+  async expectModal() {
+    await expect(this.modal).toBeVisible();
   }
 }

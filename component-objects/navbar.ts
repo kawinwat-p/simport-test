@@ -17,8 +17,8 @@ export class Navbar {
   constructor(page: Page) {
     this.page = page;
 
-    this.signInButton = page.getByRole("button", { name: "เข้าสู่ระบบ" });
-    this.signUpButton = page.getByRole("button", { name: "สมัครสมาชิก" });
+    this.signInButton = page.getByRole("button", { name: "เข้าสู่ระบบ" }).first();
+    this.signUpButton = page.getByRole("button", { name: "สมัครสมาชิก" }).first();
     this.profileMenu = page.locator(`#Vector`);
     this.logOutButton = page.getByRole("button", { name: "ออกจากระบบ" });
     this.allAssetsMenu = page.getByText("ทรัพย์สินทั้งหมด", { exact: true }).first();
