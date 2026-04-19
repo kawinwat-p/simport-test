@@ -362,7 +362,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await page.waitForTimeout(2000);
 
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("buy");
+    await assetPage.clickGoldTransaction("buy");
 
     //test output
     await assetPage.expectBuyingGoldForm();
@@ -406,7 +406,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await page.waitForTimeout(2000);
 
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("sell");
+    await assetPage.clickGoldTransaction("sell");
 
     //test output
     await assetPage.expectSellingGoldForm();
@@ -493,7 +493,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await page.waitForTimeout(2000);
 
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("sell");
+    await assetPage.clickGoldTransaction("sell");
 
     const sellPrice = "5000";
     const sellQuantity = "2";
@@ -788,7 +788,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await navBar.clickGold();
     await page.waitForTimeout(2000);
     await assetPage.clickTransactionPage(1);
-    await assetPage.clickTransaction("sell");
+    await assetPage.clickGoldTransaction("sell");
 
     const sellPrice = "20000";
     const sellQuantity = "1";
@@ -904,7 +904,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await navBar.clickGold();
     await page.waitForTimeout(2000);
     await assetPage.clickTransactionPage(1);
-    await assetPage.clickTransaction("sell");
+    await assetPage.clickGoldTransaction("sell");
 
     const sellPrice = "10000";
     const sellQuantity = "1";
@@ -1280,7 +1280,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await navBar.clickGold();
     await page.waitForTimeout(2000);
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("sell");
+    await assetPage.clickGoldTransaction("sell");
 
     const sellPrice = "5000";
     const sellQuantity = "1.00";
@@ -1361,7 +1361,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await navBar.clickGold();
     await page.waitForTimeout(2000);
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("buy");
+    await assetPage.clickGoldTransaction("buy");
 
     const buyPrice = "10000";
     const buyQuantity = "1.00";
@@ -1431,7 +1431,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await navBar.clickGold();
     await page.waitForTimeout(2000);
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("sell");
+    await assetPage.clickGoldTransaction("sell");
 
     //test output
     await expect(
@@ -1477,7 +1477,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await navBar.clickGold();
     await page.waitForTimeout(2000);
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("sell");
+    await assetPage.clickGoldTransaction("sell");
 
     const sellPrice = "5000";
     const sellQuantity = "1.00";
@@ -1548,7 +1548,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await navBar.clickGold();
     await page.waitForTimeout(2000);
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("sell");
+    await assetPage.clickGoldTransaction("sell");
 
     const sellPrice = "5000";
     const sellQuantity = "3.00";
@@ -1605,7 +1605,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await navBar.clickGold();
     await page.waitForTimeout(2000);
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("sell");
+    await assetPage.clickGoldTransaction("sell");
 
     const sellPrice = "5000";
     const sellQuantity = "1.00";
@@ -1672,7 +1672,7 @@ test.describe("Asset Aggregation - Gold", () => {
     )) as string;
 
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("buy");
+    await assetPage.clickGoldTransaction("buy");
 
     const buyPrice = "45000";
     const buyQuantity = "3";
@@ -1688,7 +1688,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await assetPage.clickSaveTransactionButton();
     await page.waitForTimeout(2000);
 
-    await assetPage.clickTransaction("sell", 0);
+    await assetPage.clickGoldTransaction("sell", 0);
 
     const sellPrice = "40000";
     const sellQuantity = "2";
@@ -1778,7 +1778,7 @@ test.describe("Asset Aggregation - Gold", () => {
     )) as string;
 
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("buy");
+    await assetPage.clickGoldTransaction("buy");
 
     const buyPrice = "45000";
     const buyQuantity = "3";
@@ -1794,7 +1794,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await assetPage.clickSaveTransactionButton();
     await page.waitForTimeout(2000);
 
-    await assetPage.clickTransaction("sell", 0);
+    await assetPage.clickGoldTransaction("sell", 0);
 
     const sellPrice = "40000";
     const sellQuantity = "3";
@@ -1869,7 +1869,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await navBar.clickGold();
     await page.waitForTimeout(2000);
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("sell");
+    await assetPage.clickGoldTransaction("sell");
 
     const sellPrice = "20000";
     const sellQuantity = "1.00";
@@ -1942,7 +1942,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await navBar.clickGold();
     await page.waitForTimeout(2000);
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("sell");
+    await assetPage.clickGoldTransaction("sell");
 
     const sellPrice = "20000";
     const sellQuantity = "1.00";
@@ -2006,7 +2006,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await navBar.clickGold();
     await page.waitForTimeout(2000);
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("sell");
+    await assetPage.clickGoldTransaction("sell");
 
     const sellPrice = "20000";
     const sellQuantity = "1.00";
@@ -2096,7 +2096,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await navBar.clickGold();
     await page.waitForTimeout(2000);
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("sell");
+    await assetPage.clickGoldTransaction("sell");
 
     const sellPrice = "20000";
     const sellQuantity = "1.00";
@@ -2173,7 +2173,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await navBar.clickGold();
     await page.waitForTimeout(2000);
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("sell");
+    await assetPage.clickGoldTransaction("sell");
 
     const sellPrice = "20000";
     const sellQuantity = "1.00";
@@ -2250,7 +2250,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await navBar.clickGold();
     await page.waitForTimeout(2000);
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("sell");
+    await assetPage.clickGoldTransaction("sell");
 
     const sellPrice = "20000";
     const sellQuantity = "2.00";
@@ -2327,7 +2327,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await navBar.clickGold();
     await page.waitForTimeout(2000);
     await assetPage.clickTransactionPage(0);
-    await assetPage.clickTransaction("sell");
+    await assetPage.clickGoldTransaction("sell");
 
     const sellPrice = "20000";
     const sellQuantity = "2.00";

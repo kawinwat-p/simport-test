@@ -102,7 +102,9 @@ export class ImportPage {
     await this.descriptionInput.fill(description);
     await this.dateInput.fill(date);
     await this.timeInput.fill(time);
+    await this.stockNameInput.click();
     await this.stockNameInput.fill(stockName);
+    await this.page.getByText(stockName, { exact: true }).click();
     await this.stockPricePerUnitInput.fill(stockPricePerUnit);
     await this.stockQuantityInput.fill(stockQuantity);
   }
@@ -142,7 +144,9 @@ export class ImportPage {
     await this.descriptionInput.fill(description);
     await this.dateInput.fill(date);
     await this.timeInput.fill(time);
+    await this.fundNameInput.click();
     await this.fundNameInput.fill(fundName);
+    await this.page.getByText(fundName, { exact: true }).click();
     await this.fundNAVInput.fill(fundNAV);
     await this.fundQuantityInput.fill(fundQuantity);
   }

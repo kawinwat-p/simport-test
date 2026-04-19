@@ -15,8 +15,8 @@ export class AssetPage {
   private readonly editTransactionButton: Locator;
   private readonly deleteTransactionButton: Locator;
   private readonly confirmDeleteTransactionButton: Locator;
-  private readonly buyTransactionButton: Locator;
-  private readonly sellTransactionButton: Locator;
+  private readonly goldBuyTransactionButton: Locator;
+  private readonly goldSellTransactionButton: Locator;
   private readonly dateInput: Locator;
   private readonly priceInput: Locator;
   private readonly quantityInput: Locator;
@@ -31,6 +31,12 @@ export class AssetPage {
   private readonly editQuantityInput: Locator;
   private readonly editCostInput: Locator;
   private readonly saveEditTransactionButton: Locator;
+  private readonly stockFundBuyTransactionButton: Locator;
+  private readonly stockFundSellTransactionButton: Locator;
+  private readonly stockFundDateInput: Locator;
+  private readonly stockFundTimeInput: Locator;
+  private readonly stockFundPricePerUnitInput: Locator;
+  private readonly stockFundQuantityInput: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -55,8 +61,12 @@ export class AssetPage {
     this.confirmDeleteTransactionButton = page.getByRole("button", {
       name: "ลบรายการ",
     });
-    this.buyTransactionButton = page.getByRole("button", { name: "plus ซื้อ" });
-    this.sellTransactionButton = page.getByRole("button", { name: "tag ขาย" });
+    this.goldBuyTransactionButton = page.getByRole("button", {
+      name: "plus ซื้อ",
+    });
+    this.goldSellTransactionButton = page.getByRole("button", {
+      name: "tag ขาย",
+    });
     this.dateInput = this.modal.locator("#date");
     this.timeInput = this.modal.locator("#time");
     this.priceInput = this.modal.locator("#total_price");
@@ -81,6 +91,20 @@ export class AssetPage {
     this.saveEditTransactionButton = this.modal.getByRole("button", {
       name: "check",
     });
+    this.stockFundBuyTransactionButton = this.modal.getByText("ซื้อ");
+    this.stockFundSellTransactionButton = this.modal.getByText("ขาย");
+    this.stockFundDateInput = this.modal.getByRole("textbox", {
+      name: "Select date",
+    });
+    this.stockFundTimeInput = this.modal.getByRole("textbox", {
+      name: "Select time",
+    });
+    this.stockFundPricePerUnitInput = this.modal
+      .locator(".ant-input-number-input")
+      .first();
+    this.stockFundQuantityInput = this.modal
+      .locator(".ant-input-number-input")
+      .last();
   }
 
   // Actions
@@ -100,6 +124,7 @@ export class AssetPage {
     for (let i = 0; i < count; i++) {
       await this.clickDeleteAsset(0);
     }
+    await this.page.waitForTimeout(2000);
   }
 
   async clickDetailPage(order: number) {
@@ -133,12 +158,20 @@ export class AssetPage {
     await this.confirmDeleteAssetButton.click();
   }
 
-  async clickTransaction(type: string, order?: number) {
+  async clickGoldTransaction(type: string, order?: number) {
     if (type === "buy") {
-      await this.buyTransactionButton.click();
+      await this.goldBuyTransactionButton.click();
     } else if (type === "sell") {
       if (!order) order = 0;
-      await this.sellTransactionButton.nth(order).click();
+      await this.goldSellTransactionButton.nth(order).click();
+    }
+  }
+
+  async clickStockFundTransaction(type: string) {
+    if (type === "buy") {
+      await this.stockFundBuyTransactionButton.click();
+    } else if (type === "sell") {
+      await this.stockFundSellTransactionButton.click();
     }
   }
 
@@ -337,6 +370,51 @@ export class AssetPage {
     }
   }
 
+  async expectFundTable(
+    entity?: string,
+    name?: string,
+    quantity?: string,
+    pricePerUnit?: string,
+    netWorth?: string,
+    cost?: string,
+    averageCost?: string,
+    unrealized?: string,
+    order?: number,
+  ) {
+    const data = await this.assetTable.allTextContents();
+
+    if (
+      entity &&
+      name &&
+      quantity &&
+      pricePerUnit &&
+      netWorth &&
+      cost &&
+      averageCost &&
+      unrealized &&
+      order
+    ) {
+      const baseIndex = order * 9;
+      expect(data[baseIndex + 9]).toContain(entity);
+      expect(data[baseIndex + 10]).toContain(name);
+      expect(data[baseIndex + 11]).toContain(quantity);
+      expect(data[baseIndex + 12]).toContain(pricePerUnit);
+      expect(data[baseIndex + 13]).toContain(netWorth);
+      expect(data[baseIndex + 14]).toContain(cost);
+      expect(data[baseIndex + 15]).toContain(averageCost);
+      expect(data[baseIndex + 16]).toContain(unrealized);
+    } else {
+      expect(data[0]).toContain("ประเภท");
+      expect(data[1]).toContain("รายการกองทุน");
+      expect(data[2]).toContain("จำนวน (หน่วย)");
+      expect(data[3]).toContain("NAV (บาท)");
+      expect(data[4]).toContain("มูลค่าปัจจุบัน (บาท)");
+      expect(data[5]).toContain("ราคาต้นทุน (บาท)");
+      expect(data[6]).toContain("มูลค่าเฉลี่ยต่อหน่วยลงทุน (บาท)");
+      expect(data[7]).toContain("กำไร/ขาดทุน (Unrealized)");
+    }
+  }
+
   async expectNoData() {
     await expect(this.page.getByText("ไม่พบข้อมูล").last()).toBeVisible();
   }
@@ -428,6 +506,43 @@ export class AssetPage {
     }
   }
 
+  async expectFundTransactionTable(
+    date?: string,
+    type?: string,
+    quantity?: string,
+    pricePerUnit?: string,
+    totalCost?: string,
+    realized?: string,
+    order?: number,
+  ) {
+    const data = await this.transactionTable.allTextContents();
+
+    if (
+      date &&
+      type &&
+      quantity &&
+      pricePerUnit &&
+      totalCost &&
+      realized &&
+      order !== undefined
+    ) {
+      const baseIndex = order * 7;
+      expect(data[baseIndex + 7]).toEqual(date);
+      expect(data[baseIndex + 8]).toEqual(type);
+      expect(data[baseIndex + 9]).toEqual(quantity);
+      expect(data[baseIndex + 10]).toEqual(pricePerUnit);
+      expect(data[baseIndex + 11]).toEqual(totalCost);
+      expect(data[baseIndex + 12]).toEqual(realized);
+    } else {
+      expect(data[0]).toContain("วันที่");
+      expect(data[1]).toContain("ประเภท");
+      expect(data[2]).toContain("จำนวน (หน่วย)");
+      expect(data[3]).toContain("NAV (บาท)");
+      expect(data[4]).toContain("ราคารวม (บาท)");
+      expect(data[5]).toContain("กำไร/ขาดทุน (Realized)");
+    }
+  }
+
   async expectDetailMenu() {
     await expect(this.assetDetailButton).toBeVisible();
   }
@@ -461,6 +576,14 @@ export class AssetPage {
     await expect(this.timeInput).toBeVisible();
     await expect(this.priceInput).toBeVisible();
     await expect(this.quantityInput).toBeVisible();
+    await expect(this.saveTransactionButton).toBeVisible();
+  }
+
+  async expectBuyingStockFundForm() {
+    await expect(this.stockFundDateInput).toBeVisible();
+    await expect(this.stockFundTimeInput).toBeVisible();
+    await expect(this.stockFundPricePerUnitInput).toBeVisible();
+    await expect(this.stockFundQuantityInput).toBeVisible();
     await expect(this.saveTransactionButton).toBeVisible();
   }
 
