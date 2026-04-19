@@ -1511,4 +1511,900 @@ test.describe("Asset Aggregation - Gold", () => {
     await assetPage.clickCloseModalButton();
     await assetPage.clearData(1);
   });
+
+  test("TEST-AA-84: Prevent Selling Gold Transaction in case the selling quantity is more then the balance quantity", async ({
+    navBar,
+    assetPage,
+    importPage,
+    page,
+  }) => {
+    //test step
+    //test step
+    await navBar.clickImport();
+    await importPage.clickManualImportButton();
+    await importPage.clickGoldButton();
+
+    let name = "ทองคำแท่ง";
+    let purity = "96.50%";
+    let entity = "ส่วนตัว";
+    let description = "test1";
+    let date = "01/01/2026";
+    let time = "00:00";
+    let price = "30000";
+    let quantity = "2.00";
+
+    await importPage.fillGoldImportForm(
+      entity,
+      description,
+      date,
+      time,
+      name,
+      price,
+      purity,
+      quantity,
+    );
+    await importPage.clickSaveButton();
+
+    await navBar.clickGold();
+    await page.waitForTimeout(2000);
+    await assetPage.clickTransactionPage(0);
+    await assetPage.clickTransaction("sell");
+
+    const sellPrice = "5000";
+    const sellQuantity = "3.00";
+    const sellDate = "03/01/2026";
+    const sellTime = "00:00";
+
+    await assetPage.fillTransactionForm(
+      sellDate,
+      sellTime,
+      sellPrice,
+      sellQuantity,
+    );
+
+    //test output
+    await expect(page.getByText(`ขายได้ไม่เกิน ${quantity} บาท`)).toBeVisible();
+
+    await assetPage.clickCloseModalButton();
+    await assetPage.clearData(1);
+  });
+
+  test("TEST-AA-85: Prevent Selling Gold Transaction in case Selling Date is before Buying Date", async ({
+    navBar,
+    assetPage,
+    importPage,
+    page,
+  }) => {
+    //test step
+    //test step
+    await navBar.clickImport();
+    await importPage.clickManualImportButton();
+    await importPage.clickGoldButton();
+
+    let name = "ทองคำแท่ง";
+    let purity = "96.50%";
+    let entity = "ส่วนตัว";
+    let description = "test1";
+    let date = "03/01/2026";
+    let time = "00:00";
+    let price = "30000";
+    let quantity = "2.00";
+
+    await importPage.fillGoldImportForm(
+      entity,
+      description,
+      date,
+      time,
+      name,
+      price,
+      purity,
+      quantity,
+    );
+    await importPage.clickSaveButton();
+
+    await navBar.clickGold();
+    await page.waitForTimeout(2000);
+    await assetPage.clickTransactionPage(0);
+    await assetPage.clickTransaction("sell");
+
+    const sellPrice = "5000";
+    const sellQuantity = "1.00";
+    const sellDate = "01/01/2026";
+    const sellTime = "00:00";
+
+    await assetPage.fillTransactionForm(
+      sellDate,
+      sellTime,
+      sellPrice,
+      sellQuantity,
+    );
+
+    //test output
+    await expect(
+      page
+        .getByText(
+          `วันเวลาที่ขายต้องไม่ขายก่อนวันเวลาที่ซื้อ (${date} ${time})`,
+        )
+        .first(),
+    ).toBeVisible();
+
+    await assetPage.clickCloseModalButton();
+    await assetPage.clearData(1);
+  });
+
+  test("TEST-AA-86: Ensure calculate the balance of each gold assets", async ({
+    navBar,
+    assetPage,
+    importPage,
+    page,
+  }) => {
+    //test step
+    await navBar.clickImport();
+    await importPage.clickManualImportButton();
+    await importPage.clickGoldButton();
+
+    let name = "ทองคำแท่ง";
+    let purity = "96.50%";
+    let entity = "ส่วนตัว";
+    let description = "test1";
+    let date = "01/01/2026";
+    let time = "00:00";
+    let price = "20000";
+    let quantity = "2.00";
+
+    await importPage.fillGoldImportForm(
+      entity,
+      description,
+      date,
+      time,
+      name,
+      price,
+      purity,
+      quantity,
+    );
+    await importPage.clickSaveButton();
+
+    await navBar.clickGold();
+    await page.waitForTimeout(2000);
+
+    const test1PricePerUnit: string = (await assetPage.getRecentPricePerUnit(
+      0,
+    )) as string;
+
+    await assetPage.clickTransactionPage(0);
+    await assetPage.clickTransaction("buy");
+
+    const buyPrice = "45000";
+    const buyQuantity = "3";
+    const buyDate = "02/01/2026";
+    const buyTime = "00:00";
+
+    await assetPage.fillTransactionForm(
+      buyDate,
+      buyTime,
+      buyPrice,
+      buyQuantity,
+    );
+    await assetPage.clickSaveTransactionButton();
+    await page.waitForTimeout(2000);
+
+    await assetPage.clickTransaction("sell", 0);
+
+    const sellPrice = "40000";
+    const sellQuantity = "2";
+    const sellDate = "03/01/2026";
+    const sellTime = "00:00";
+
+    await assetPage.fillTransactionForm(
+      sellDate,
+      sellTime,
+      sellPrice,
+      sellQuantity,
+    );
+    await assetPage.clickSaveTransactionButton();
+    await page.waitForTimeout(2000);
+
+    const formattedPricePerUnit = new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(test1PricePerUnit.replace(/,/g, "")));
+    const formattedNetWorth2 = formattedPricePerUnit;
+    const netWorth1 = Number(test1PricePerUnit.replace(/,/g, "")) * 2;
+    const formattedNetWorth1 = new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(netWorth1);
+
+    //test output
+    await assetPage.expectBalanceTable(
+      `${date} ${time}`,
+      "2.00",
+      "10,000.00",
+      formattedNetWorth1,
+      formattedPricePerUnit,
+      1,
+    );
+
+    await assetPage.expectBalanceTable(
+      `${buyDate} ${buyTime}`,
+      "1.00",
+      "15,000.00",
+      formattedNetWorth2,
+      formattedPricePerUnit,
+      0,
+    );
+
+    await assetPage.clickCloseModalButton();
+    await assetPage.clearData(1);
+  });
+
+  test("TEST-AA-87: Ensure calculate the balance of each gold assets when selling entire transaction", async ({
+    navBar,
+    assetPage,
+    importPage,
+    page,
+  }) => {
+    //test step
+    await navBar.clickImport();
+    await importPage.clickManualImportButton();
+    await importPage.clickGoldButton();
+
+    let name = "ทองคำแท่ง";
+    let purity = "96.50%";
+    let entity = "ส่วนตัว";
+    let description = "test1";
+    let date = "01/01/2026";
+    let time = "00:00";
+    let price = "20000";
+    let quantity = "2.00";
+
+    await importPage.fillGoldImportForm(
+      entity,
+      description,
+      date,
+      time,
+      name,
+      price,
+      purity,
+      quantity,
+    );
+    await importPage.clickSaveButton();
+
+    await navBar.clickGold();
+    await page.waitForTimeout(2000);
+
+    const test1PricePerUnit: string = (await assetPage.getRecentPricePerUnit(
+      0,
+    )) as string;
+
+    await assetPage.clickTransactionPage(0);
+    await assetPage.clickTransaction("buy");
+
+    const buyPrice = "45000";
+    const buyQuantity = "3";
+    const buyDate = "02/01/2026";
+    const buyTime = "00:00";
+
+    await assetPage.fillTransactionForm(
+      buyDate,
+      buyTime,
+      buyPrice,
+      buyQuantity,
+    );
+    await assetPage.clickSaveTransactionButton();
+    await page.waitForTimeout(2000);
+
+    await assetPage.clickTransaction("sell", 0);
+
+    const sellPrice = "40000";
+    const sellQuantity = "3";
+    const sellDate = "03/01/2026";
+    const sellTime = "00:00";
+
+    await assetPage.fillTransactionForm(
+      sellDate,
+      sellTime,
+      sellPrice,
+      sellQuantity,
+    );
+    await assetPage.clickSaveTransactionButton();
+    await page.waitForTimeout(2000);
+
+    const formattedPricePerUnit = new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(test1PricePerUnit.replace(/,/g, "")));
+    const netWorth1 = Number(test1PricePerUnit.replace(/,/g, "")) * 2;
+    const formattedNetWorth1 = new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(netWorth1);
+
+    //test output
+    await assetPage.expectBalanceTable(
+      `${date} ${time}`,
+      "2.00",
+      "10,000.00",
+      formattedNetWorth1,
+      formattedPricePerUnit,
+      0,
+    );
+
+    await assetPage.clickCloseModalButton();
+    await assetPage.clearData(1);
+  });
+
+  test("TEST-AA-88: Ensure delete selling gold transaction successfully", async ({
+    navBar,
+    assetPage,
+    importPage,
+    page,
+  }) => {
+    //test step
+    await navBar.clickImport();
+    await importPage.clickManualImportButton();
+    await importPage.clickGoldButton();
+
+    let name = "ทองคำแท่ง";
+    let purity = "96.50%";
+    let entity = "ส่วนตัว";
+    let description = "test1";
+    let date = "01/01/2026";
+    let time = "00:00";
+    let price = "20000";
+    let quantity = "2.00";
+
+    await importPage.fillGoldImportForm(
+      entity,
+      description,
+      date,
+      time,
+      name,
+      price,
+      purity,
+      quantity,
+    );
+    await importPage.clickSaveButton();
+
+    await navBar.clickGold();
+    await page.waitForTimeout(2000);
+    await assetPage.clickTransactionPage(0);
+    await assetPage.clickTransaction("sell");
+
+    const sellPrice = "20000";
+    const sellQuantity = "1.00";
+    const sellDate = "03/01/2026";
+    const sellTime = "00:00";
+
+    await assetPage.fillTransactionForm(
+      sellDate,
+      sellTime,
+      sellPrice,
+      sellQuantity,
+    );
+    await assetPage.clickSaveTransactionButton();
+    await page.waitForTimeout(2000);
+    await assetPage.clickCloseModalButton();
+    await assetPage.clickDetailPage(0);
+    await page.waitForTimeout(2000);
+
+    await assetPage.clickDeleteTransaction(0);
+    await page.waitForTimeout(2000);
+
+    //test output
+    await assetPage.expectGoldTransactionTable(
+      `${date} ${time}`,
+      "ซื้อ",
+      "2.00",
+      "10,000.00",
+      "20,000.00",
+      "-",
+      "-",
+      0,
+    );
+
+    await assetPage.clickCloseModalButton();
+    await assetPage.clearData(1);
+  });
+
+  test("TEST-AA-89: Ensure delete buying gold transaction successfully", async ({
+    navBar,
+    assetPage,
+    importPage,
+    page,
+  }) => {
+    //test step
+    await navBar.clickImport();
+    await importPage.clickManualImportButton();
+    await importPage.clickGoldButton();
+
+    let name = "ทองคำแท่ง";
+    let purity = "96.50%";
+    let entity = "ส่วนตัว";
+    let description = "test1";
+    let date = "01/01/2026";
+    let time = "00:00";
+    let price = "20000";
+    let quantity = "2.00";
+
+    await importPage.fillGoldImportForm(
+      entity,
+      description,
+      date,
+      time,
+      name,
+      price,
+      purity,
+      quantity,
+    );
+    await importPage.clickSaveButton();
+
+    await navBar.clickGold();
+    await page.waitForTimeout(2000);
+    await assetPage.clickTransactionPage(0);
+    await assetPage.clickTransaction("sell");
+
+    const sellPrice = "20000";
+    const sellQuantity = "1.00";
+    const sellDate = "03/01/2026";
+    const sellTime = "00:00";
+
+    await assetPage.fillTransactionForm(
+      sellDate,
+      sellTime,
+      sellPrice,
+      sellQuantity,
+    );
+    await assetPage.clickSaveTransactionButton();
+    await page.waitForTimeout(2000);
+    await assetPage.clickCloseModalButton();
+    await assetPage.clickDetailPage(0);
+    await page.waitForTimeout(2000);
+
+    await assetPage.clickDeleteTransaction(1);
+    await page.waitForTimeout(2000);
+
+    //test output
+    await assetPage.expectNoData();
+
+    await assetPage.clickCloseModalButton();
+    await assetPage.clearData(1);
+  });
+
+  test("TEST-AA-90: Ensure edit gold transaction successfully", async ({
+    navBar,
+    assetPage,
+    importPage,
+    page,
+  }) => {
+    //test step
+    await navBar.clickImport();
+    await importPage.clickManualImportButton();
+    await importPage.clickGoldButton();
+
+    let name = "ทองคำแท่ง";
+    let purity = "96.50%";
+    let entity = "ส่วนตัว";
+    let description = "test1";
+    let date = "01/01/2026";
+    let time = "00:00";
+    let price = "20000";
+    let quantity = "4.00";
+
+    await importPage.fillGoldImportForm(
+      entity,
+      description,
+      date,
+      time,
+      name,
+      price,
+      purity,
+      quantity,
+    );
+    await importPage.clickSaveButton();
+
+    await navBar.clickGold();
+    await page.waitForTimeout(2000);
+    await assetPage.clickTransactionPage(0);
+    await assetPage.clickTransaction("sell");
+
+    const sellPrice = "20000";
+    const sellQuantity = "1.00";
+    const sellDate = "03/01/2026";
+    const sellTime = "00:00";
+
+    await assetPage.fillTransactionForm(
+      sellDate,
+      sellTime,
+      sellPrice,
+      sellQuantity,
+    );
+    await assetPage.clickSaveTransactionButton();
+    await page.waitForTimeout(2000);
+    await assetPage.clickCloseModalButton();
+    await assetPage.clickDetailPage(0);
+    await page.waitForTimeout(2000);
+
+    await assetPage.clickEditTransaction(0);
+
+    const editSellPrice = "30000";
+    const editSellQuantity = "2.00";
+    const editSellDate = "02/01/2026";
+    const editSellTime = "00:00";
+
+    await assetPage.fillEditGoldForm(
+      editSellDate,
+      editSellTime,
+      editSellQuantity,
+      editSellPrice,
+    );
+    await assetPage.clickSaveEditTransactionButton();
+    await page.waitForTimeout(2000);
+
+    await assetPage.clickCloseModalButton();
+    await assetPage.clickDetailPage(0);
+    await page.waitForTimeout(2000);
+
+    //test output
+    await assetPage.expectGoldTransactionTable(
+      `${editSellDate} ${editSellTime}`,
+      "ขาย",
+      "-2.00",
+      "15,000.00",
+      "-30,000.00",
+      "+20,000.00",
+      "01/01/26(20,000.00)",
+      0,
+    );
+
+    await assetPage.clickCloseModalButton();
+    await assetPage.clearData(1);
+  });
+
+  test("TEST-AA-91: Prevent edit selling gold transaction when the input date is before the buying date", async ({
+    navBar,
+    assetPage,
+    importPage,
+    page,
+  }) => {
+    //test step
+    await navBar.clickImport();
+    await importPage.clickManualImportButton();
+    await importPage.clickGoldButton();
+
+    let name = "ทองคำแท่ง";
+    let purity = "96.50%";
+    let entity = "ส่วนตัว";
+    let description = "test1";
+    let date = "02/01/2026";
+    let time = "00:00";
+    let price = "20000";
+    let quantity = "4.00";
+
+    await importPage.fillGoldImportForm(
+      entity,
+      description,
+      date,
+      time,
+      name,
+      price,
+      purity,
+      quantity,
+    );
+    await importPage.clickSaveButton();
+
+    await navBar.clickGold();
+    await page.waitForTimeout(2000);
+    await assetPage.clickTransactionPage(0);
+    await assetPage.clickTransaction("sell");
+
+    const sellPrice = "20000";
+    const sellQuantity = "1.00";
+    const sellDate = "03/01/2026";
+    const sellTime = "00:00";
+
+    await assetPage.fillTransactionForm(
+      sellDate,
+      sellTime,
+      sellPrice,
+      sellQuantity,
+    );
+    await assetPage.clickSaveTransactionButton();
+    await page.waitForTimeout(2000);
+    await assetPage.clickCloseModalButton();
+    await assetPage.clickDetailPage(0);
+    await page.waitForTimeout(2000);
+
+    await assetPage.clickEditTransaction(0);
+
+    const editSellPrice = "30000";
+    const editSellQuantity = "2.00";
+    const editSellDate = "01/01/2026";
+    const editSellTime = "00:00";
+
+    await assetPage.fillEditGoldForm(
+      editSellDate,
+      editSellTime,
+      editSellQuantity,
+      editSellPrice,
+    );
+    await assetPage.clickSaveEditTransactionButton();
+    await page.waitForTimeout(2000);
+
+    //test output
+    await expect(page.getByText("ห้ามขายก่อนวันที่ซื้ออ้างอิง")).toBeVisible();
+
+    await assetPage.clickCloseModalButton();
+    await assetPage.clearData(1);
+  });
+
+  test("TEST-AA-92: Prevent edit buying gold transaction when the input date is after the selling date", async ({
+    navBar,
+    assetPage,
+    importPage,
+    page,
+  }) => {
+    //test step
+    await navBar.clickImport();
+    await importPage.clickManualImportButton();
+    await importPage.clickGoldButton();
+
+    let name = "ทองคำแท่ง";
+    let purity = "96.50%";
+    let entity = "ส่วนตัว";
+    let description = "test1";
+    let date = "01/01/2026";
+    let time = "00:00";
+    let price = "20000";
+    let quantity = "4.00";
+
+    await importPage.fillGoldImportForm(
+      entity,
+      description,
+      date,
+      time,
+      name,
+      price,
+      purity,
+      quantity,
+    );
+    await importPage.clickSaveButton();
+
+    await navBar.clickGold();
+    await page.waitForTimeout(2000);
+    await assetPage.clickTransactionPage(0);
+    await assetPage.clickTransaction("sell");
+
+    const sellPrice = "20000";
+    const sellQuantity = "1.00";
+    const sellDate = "02/01/2026";
+    const sellTime = "00:00";
+
+    await assetPage.fillTransactionForm(
+      sellDate,
+      sellTime,
+      sellPrice,
+      sellQuantity,
+    );
+    await assetPage.clickSaveTransactionButton();
+    await page.waitForTimeout(2000);
+    await assetPage.clickCloseModalButton();
+    await assetPage.clickDetailPage(0);
+    await page.waitForTimeout(2000);
+
+    await assetPage.clickEditTransaction(1);
+
+    const editSellPrice = "30000";
+    const editSellQuantity = "2.00";
+    const editSellDate = "03/01/2026";
+    const editSellTime = "00:00";
+
+    await assetPage.fillEditGoldForm(
+      editSellDate,
+      editSellTime,
+      editSellQuantity,
+      editSellPrice,
+    );
+    await assetPage.clickSaveEditTransactionButton();
+    await page.waitForTimeout(2000);
+
+    //test output
+    await expect(page.getByText("ห้ามซื้อหลังวันที่ขายถัดไป")).toBeVisible();
+
+    await assetPage.clickCloseModalButton();
+    await assetPage.clearData(1);
+  });
+
+  test("TEST-AA-93: Prevent edit buying gold transaction when the quantity input is less than the amount of selling quantity", async ({
+    navBar,
+    assetPage,
+    importPage,
+    page,
+  }) => {
+    //test step
+    await navBar.clickImport();
+    await importPage.clickManualImportButton();
+    await importPage.clickGoldButton();
+
+    let name = "ทองคำแท่ง";
+    let purity = "96.50%";
+    let entity = "ส่วนตัว";
+    let description = "test1";
+    let date = "01/01/2026";
+    let time = "00:00";
+    let price = "20000";
+    let quantity = "4.00";
+
+    await importPage.fillGoldImportForm(
+      entity,
+      description,
+      date,
+      time,
+      name,
+      price,
+      purity,
+      quantity,
+    );
+    await importPage.clickSaveButton();
+
+    await navBar.clickGold();
+    await page.waitForTimeout(2000);
+    await assetPage.clickTransactionPage(0);
+    await assetPage.clickTransaction("sell");
+
+    const sellPrice = "20000";
+    const sellQuantity = "2.00";
+    const sellDate = "03/01/2026";
+    const sellTime = "00:00";
+
+    await assetPage.fillTransactionForm(
+      sellDate,
+      sellTime,
+      sellPrice,
+      sellQuantity,
+    );
+    await assetPage.clickSaveTransactionButton();
+    await page.waitForTimeout(2000);
+    await assetPage.clickCloseModalButton();
+    await assetPage.clickDetailPage(0);
+    await page.waitForTimeout(2000);
+
+    await assetPage.clickEditTransaction(1);
+
+    const editSellPrice = "30000";
+    const editSellQuantity = "1.00";
+    const editSellDate = "02/01/2026";
+    const editSellTime = "00:00";
+
+    await assetPage.fillEditGoldForm(
+      editSellDate,
+      editSellTime,
+      editSellQuantity,
+      editSellPrice,
+    );
+    await assetPage.clickSaveEditTransactionButton();
+    await page.waitForTimeout(2000);
+
+    //test output
+    await expect(page.getByText("ยอดสะสมจะไม่เพียงพอต่อการขาย")).toBeVisible();
+
+    await assetPage.clickCloseModalButton();
+    await assetPage.clearData(1);
+  });
+
+  test("TEST-AA-94: Prevent edit selling gold transaction when the input make the balance quantity less than zero", async ({
+    navBar,
+    assetPage,
+    importPage,
+    page,
+  }) => {
+    //test step
+    await navBar.clickImport();
+    await importPage.clickManualImportButton();
+    await importPage.clickGoldButton();
+
+    let name = "ทองคำแท่ง";
+    let purity = "96.50%";
+    let entity = "ส่วนตัว";
+    let description = "test";
+    let date = "01/01/2026";
+    let time = "00:00";
+    let price = "20000";
+    let quantity = "4.00";
+
+    await importPage.fillGoldImportForm(
+      entity,
+      description,
+      date,
+      time,
+      name,
+      price,
+      purity,
+      quantity,
+    );
+    await importPage.clickSaveButton();
+
+    await navBar.clickGold();
+    await page.waitForTimeout(2000);
+    await assetPage.clickTransactionPage(0);
+    await assetPage.clickTransaction("sell");
+
+    const sellPrice = "20000";
+    const sellQuantity = "2.00";
+    const sellDate = "03/01/2026";
+    const sellTime = "00:00";
+
+    await assetPage.fillTransactionForm(
+      sellDate,
+      sellTime,
+      sellPrice,
+      sellQuantity,
+    );
+    await assetPage.clickSaveTransactionButton();
+    await page.waitForTimeout(2000);
+    await assetPage.clickCloseModalButton();
+    await assetPage.clickDetailPage(0);
+    await page.waitForTimeout(2000);
+
+    await assetPage.clickEditTransaction(0);
+
+    const editSellPrice = "30000";
+    const editSellQuantity = "5.00";
+    const editSellDate = "02/01/2026";
+    const editSellTime = "00:00";
+
+    await assetPage.fillEditGoldForm(
+      editSellDate,
+      editSellTime,
+      editSellQuantity,
+      editSellPrice,
+    );
+    await assetPage.clickSaveEditTransactionButton();
+    await page.waitForTimeout(2000);
+
+    //test output
+    await expect(page.getByText("ยอดสะสมจะไม่เพียงพอต่อการขาย")).toBeVisible();
+
+    await assetPage.clickCloseModalButton();
+    await assetPage.clearData(1);
+  });
+
+  test("TEST-AA-95: Ensure delete gold asset successfully", async ({
+    navBar,
+    assetPage,
+    importPage,
+    page,
+  }) => {
+    //test step
+    await navBar.clickImport();
+    await importPage.clickManualImportButton();
+    await importPage.clickGoldButton();
+
+    let name = "ทองคำแท่ง";
+    let purity = "96.50%";
+    let entity = "ส่วนตัว";
+    let description = "test";
+    let date = "01/01/2026";
+    let time = "00:00";
+    let price = "20000";
+    let quantity = "2.00";
+
+    await importPage.fillGoldImportForm(
+      entity,
+      description,
+      date,
+      time,
+      name,
+      price,
+      purity,
+      quantity,
+    );
+    await importPage.clickSaveButton();
+
+    await navBar.clickGold();
+    await assetPage.clickDeleteAsset(0);
+
+    //test output
+    await assetPage.expectNoData();
+  });
 });

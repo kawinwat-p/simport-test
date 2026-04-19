@@ -27,13 +27,17 @@ export class AssetPage {
   private readonly calculatorUnitSelect: Locator;
   private readonly calculatorOrnamentButton: Locator;
   private readonly transactionTable: Locator;
+  private readonly editDateTimeInput: Locator;
+  private readonly editQuantityInput: Locator;
+  private readonly editCostInput: Locator;
+  private readonly saveEditTransactionButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.graph = page.locator("canvas");
     this.assetTable = page.locator(".ant-table-cell");
     this.closeModalButton = page.getByRole("button", { name: "Close" }).first();
-    this.modal = page.locator(".ant-modal").last();
+    this.modal = page.locator(".ant-modal:visible").last();
     this.ellipsisButtons = page.locator(
       `//*[local-name()='path' and @fill='#092640']`,
     );
@@ -67,6 +71,16 @@ export class AssetPage {
       .locator("input.ant-radio-input")
       .last();
     this.transactionTable = this.modal.locator(".ant-table-cell");
+    this.editDateTimeInput = this.modal.getByRole("textbox", {
+      name: "Select date",
+    });
+    this.editQuantityInput = this.modal.getByRole("spinbutton", {
+      name: "บาท",
+    });
+    this.editCostInput = this.modal.getByRole("spinbutton").last();
+    this.saveEditTransactionButton = this.modal.getByRole("button", {
+      name: "check",
+    });
   }
 
   // Actions
@@ -84,9 +98,7 @@ export class AssetPage {
     }
 
     for (let i = 0; i < count; i++) {
-      await this.clickEllipsisButton(0);
-      await this.deleteAssetButton.last().click();
-      await this.confirmDeleteAssetButton.click();
+      await this.clickDeleteAsset(0);
     }
   }
 
@@ -115,11 +127,18 @@ export class AssetPage {
     await this.transactionButton.last().click();
   }
 
-  async clickTransaction(type: string) {
+  async clickDeleteAsset(order: number) {
+    await this.clickEllipsisButton(order);
+    await this.deleteAssetButton.last().click();
+    await this.confirmDeleteAssetButton.click();
+  }
+
+  async clickTransaction(type: string, order?: number) {
     if (type === "buy") {
       await this.buyTransactionButton.click();
     } else if (type === "sell") {
-      await this.sellTransactionButton.click();
+      if (!order) order = 0;
+      await this.sellTransactionButton.nth(order).click();
     }
   }
 
@@ -162,6 +181,24 @@ export class AssetPage {
       await this.calculatorOrnamentButton.check();
     }
     await this.calculatorQuantityInput.fill(quantity);
+  }
+
+  async fillEditGoldForm(
+    date: string,
+    time: string,
+    quantity: string,
+    price: string,
+  ) {
+    await this.editDateTimeInput.click();
+    await this.editDateTimeInput.press("Control+A"); // select all
+    await this.editDateTimeInput.type(date + " " + time);
+    await this.editDateTimeInput.press("Enter");
+    await this.editQuantityInput.fill(quantity);
+    await this.editCostInput.fill(price);
+  }
+
+  async clickSaveEditTransactionButton() {
+    await this.saveEditTransactionButton.click();
   }
 
   // Assertions
@@ -238,7 +275,7 @@ export class AssetPage {
       netWorth &&
       cost &&
       unrealized &&
-      order
+      order !== undefined
     ) {
       const baseIndex = order * 8;
       expect(data[baseIndex + 8]).toEqual(entity);
@@ -361,7 +398,6 @@ export class AssetPage {
     order?: number,
   ) {
     const data = await this.transactionTable.allTextContents();
-    console.log(data);
 
     if (
       date &&
@@ -433,20 +469,33 @@ export class AssetPage {
     quantity?: string,
     cost?: string,
     netWorth?: string,
+    pricePerUnit?: string,
+    order?: number,
   ) {
-    const data = JSON.stringify(await this.assetTable.allTextContents());
+    const data = await this.transactionTable.allTextContents();
 
-    if (date && quantity && cost && netWorth) {
-      expect(data).toContain(date);
-      expect(data).toContain(quantity);
-      expect(data).toContain(cost);
-      expect(data).toContain(netWorth);
+    if (
+      date &&
+      quantity &&
+      cost &&
+      netWorth &&
+      pricePerUnit &&
+      order !== undefined
+    ) {
+      const baseIndex = order * 5;
+      expect(data[baseIndex + 5]).toContain(date);
+      expect(data[baseIndex + 6]).toContain(quantity);
+      expect(data[baseIndex + 7]).toContain(cost);
+      expect(data[baseIndex + 8]).toContain(netWorth);
+      expect(this.modal.getByText(pricePerUnit).first()).toBeVisible();
     } else {
-      expect(data).toContain("วันที่");
-      expect(data).toContain("จำนวน (บาท)");
-      expect(data).toContain("ราคาที่ซื้อ (บาท)");
-      expect(data).toContain("มูลค่าปัจจุบัน (บาท)");
-      expect(this.modal.getByText("ราคาต่อหน่วยปัจจุบัน")).toBeVisible();
+      expect(data[0]).toContain("วันที่");
+      expect(data[1]).toContain("จำนวน (บาท)");
+      expect(data[2]).toContain("ราคาที่ซื้อ (บาท)");
+      expect(data[3]).toContain("มูลค่าปัจจุบัน (บาท)");
+      expect(
+        this.modal.getByText("ราคาต่อหน่วยปัจจุบัน").first(),
+      ).toBeVisible();
     }
   }
 
