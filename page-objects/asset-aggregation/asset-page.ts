@@ -28,8 +28,10 @@ export class AssetPage {
   private readonly calculatorOrnamentButton: Locator;
   private readonly transactionTable: Locator;
   private readonly editDateTimeInput: Locator;
-  private readonly editQuantityInput: Locator;
-  private readonly editCostInput: Locator;
+  private readonly editGoldQuantityInput: Locator;
+  private readonly editGoldCostInput: Locator;
+  private readonly editStockFundQuantityInput: Locator;
+  private readonly editStockFundPricePerUnitInput: Locator;
   private readonly saveEditTransactionButton: Locator;
   private readonly stockFundBuyTransactionButton: Locator;
   private readonly stockFundSellTransactionButton: Locator;
@@ -37,6 +39,7 @@ export class AssetPage {
   private readonly stockFundTimeInput: Locator;
   private readonly stockFundPricePerUnitInput: Locator;
   private readonly stockFundQuantityInput: Locator;
+  private readonly cancelButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -84,10 +87,10 @@ export class AssetPage {
     this.editDateTimeInput = this.modal.getByRole("textbox", {
       name: "Select date",
     });
-    this.editQuantityInput = this.modal.getByRole("spinbutton", {
+    this.editGoldQuantityInput = this.modal.getByRole("spinbutton", {
       name: "บาท",
     });
-    this.editCostInput = this.modal.getByRole("spinbutton").last();
+    this.editGoldCostInput = this.modal.getByRole("spinbutton").last();
     this.saveEditTransactionButton = this.modal.getByRole("button", {
       name: "check",
     });
@@ -99,16 +102,22 @@ export class AssetPage {
     this.stockFundTimeInput = this.modal.getByRole("textbox", {
       name: "Select time",
     });
-    this.stockFundPricePerUnitInput = this.modal
-      .locator(".ant-input-number-input")
-      .first();
-    this.stockFundQuantityInput = this.modal
-      .locator(".ant-input-number-input")
+    this.stockFundPricePerUnitInput = this.modal.locator(
+      ".ant-input-number-input",
+    );
+    this.stockFundQuantityInput = this.modal.locator(".ant-input-number-input");
+    this.cancelButton = this.modal.getByRole("button", { name: "ยกเลิก" });
+    this.editStockFundQuantityInput = this.modal.getByRole("spinbutton", {
+      name: "หน่วย",
+    });
+    this.editStockFundPricePerUnitInput = this.modal
+      .getByRole("spinbutton")
       .last();
   }
 
   // Actions
   async clickEllipsisButton(order: number) {
+    await expect(this.ellipsisButtons.nth(order)).toBeVisible();
     await this.ellipsisButtons.nth(order).click();
   }
 
@@ -118,13 +127,13 @@ export class AssetPage {
 
   async clearData(count?: number) {
     if (!count) {
+      await this.page.waitForTimeout(5000);
       count = await this.ellipsisButtons.count();
     }
 
     for (let i = 0; i < count; i++) {
       await this.clickDeleteAsset(0);
     }
-    await this.page.waitForTimeout(2000);
   }
 
   async clickDetailPage(order: number) {
@@ -139,6 +148,9 @@ export class AssetPage {
   async clickDeleteTransaction(order: number) {
     await this.clickModalEllipsisButton(order);
     await this.deleteTransactionButton.last().click();
+    await expect(this.confirmDeleteTransactionButton).not.toHaveClass(
+      /ant-btn-loading/,
+    );
     await this.confirmDeleteTransactionButton.click();
   }
 
@@ -155,7 +167,14 @@ export class AssetPage {
   async clickDeleteAsset(order: number) {
     await this.clickEllipsisButton(order);
     await this.deleteAssetButton.last().click();
+    await expect(this.confirmDeleteAssetButton).not.toHaveClass(
+      /ant-btn-loading/,
+    );
     await this.confirmDeleteAssetButton.click();
+  }
+
+  async clickCancelButton() {
+    await this.cancelButton.click();
   }
 
   async clickGoldTransaction(type: string, order?: number) {
@@ -175,7 +194,7 @@ export class AssetPage {
     }
   }
 
-  async fillTransactionForm(
+  async fillGoldTransactionForm(
     date: string,
     time: string,
     price: string,
@@ -187,14 +206,39 @@ export class AssetPage {
     await this.quantityInput.fill(quantity);
   }
 
+  async fillStockFundTransactionForm(
+    date: string,
+    time: string,
+    pricePerUnit: string,
+    quantity: string,
+    type: string,
+  ) {
+    await this.stockFundDateInput.fill(date, { force: true });
+    await this.stockFundTimeInput.fill(time, { force: true });
+    if (type === "buy") {
+      await this.stockFundPricePerUnitInput.nth(0).fill(pricePerUnit);
+      await this.stockFundQuantityInput.nth(1).fill(quantity);
+    }
+    if (type === "sell") {
+      await this.stockFundPricePerUnitInput.nth(2).fill(pricePerUnit);
+      await this.stockFundQuantityInput.nth(3).fill(quantity);
+    }
+  }
+
   async clickSaveTransactionButton() {
     await this.saveTransactionButton.click();
   }
 
-  async getRecentPricePerUnit(order: number) {
+  async getRecentPricePerUnit(order: number, type: string, skip?: number) {
+    let dataIndex = order * 8 + 11;
+    if (type === "gold") {
+      dataIndex = order * 8 + 11;
+    } else {
+      dataIndex = order * 9 + 12;
+    }
+    if (!skip) skip = 0;
     const data = await this.assetTable.allTextContents();
-    const index = order * 8 + 11;
-    return data[index];
+    return data[dataIndex + skip];
   }
 
   async clickImportButton() {
@@ -226,8 +270,22 @@ export class AssetPage {
     await this.editDateTimeInput.press("Control+A"); // select all
     await this.editDateTimeInput.type(date + " " + time);
     await this.editDateTimeInput.press("Enter");
-    await this.editQuantityInput.fill(quantity);
-    await this.editCostInput.fill(price);
+    await this.editGoldQuantityInput.fill(quantity);
+    await this.editGoldCostInput.fill(price);
+  }
+
+  async fillEditStockFundForm(
+    date: string,
+    time: string,
+    quantity: string,
+    nav: string,
+  ) {
+    await this.editDateTimeInput.click();
+    await this.editDateTimeInput.press("Control+A"); // select all
+    await this.editDateTimeInput.type(date + " " + time);
+    await this.editDateTimeInput.press("Enter");
+    await this.editStockFundQuantityInput.fill(quantity);
+    await this.editStockFundPricePerUnitInput.fill(nav);
   }
 
   async clickSaveEditTransactionButton() {
@@ -241,7 +299,7 @@ export class AssetPage {
 
   async expectAllAssetsPage() {
     await expect(
-      this.page.getByText("ทรัพย์สินทั้งหมด (Assets)"),
+      this.page.getByText("ทรัพย์สินทั้งหมด (All Assets)"),
     ).toBeVisible();
   }
 
@@ -290,6 +348,7 @@ export class AssetPage {
   }
 
   async expectGoldTable(
+    skip?: number,
     entity?: string,
     name?: string,
     quantity?: string,
@@ -299,6 +358,7 @@ export class AssetPage {
     unrealized?: string,
     order?: number,
   ) {
+    if (!skip) skip = 0;
     const data = await this.assetTable.allTextContents();
     if (
       entity &&
@@ -310,7 +370,7 @@ export class AssetPage {
       unrealized &&
       order !== undefined
     ) {
-      const baseIndex = order * 8;
+      const baseIndex = order * 8 + skip;
       expect(data[baseIndex + 8]).toEqual(entity);
       expect(data[baseIndex + 9]).toEqual(name);
       expect(data[baseIndex + 10]).toEqual(quantity);
@@ -319,58 +379,18 @@ export class AssetPage {
       expect(data[baseIndex + 13]).toEqual(cost);
       expect(data[baseIndex + 14]).toEqual(unrealized);
     } else {
-      expect(data[0]).toEqual("ประเภท");
-      expect(data[1]).toEqual("รายการทอง");
-      expect(data[2]).toEqual("จำนวน (บาท)");
-      expect(data[3]).toEqual("ราคาตลาด (บาท)");
-      expect(data[4]).toEqual("มูลค่าปัจจุบัน (บาท)");
-      expect(data[5]).toEqual("ราคาต้นทุน (บาท)");
-      expect(data[6]).toEqual("กำไร/ขาดทุน (Unrealized)");
+      expect(data[0 + skip]).toEqual("ประเภท");
+      expect(data[1 + skip]).toEqual("รายการทอง");
+      expect(data[2 + skip]).toEqual("จำนวน (บาท)");
+      expect(data[3 + skip]).toEqual("ราคาตลาด (บาท)");
+      expect(data[4 + skip]).toEqual("มูลค่าปัจจุบัน (บาท)");
+      expect(data[5 + skip]).toEqual("ราคาต้นทุน (บาท)");
+      expect(data[6 + skip]).toEqual("กำไร/ขาดทุน (Unrealized)");
     }
   }
 
   async expectStockTable(
-    entity?: string,
-    name?: string,
-    quantity?: string,
-    pricePerUnit?: string,
-    netWorth?: string,
-    cost?: string,
-    averageCost?: string,
-    unrealized?: string,
-  ) {
-    const data = JSON.stringify(await this.assetTable.allTextContents());
-
-    if (
-      entity &&
-      name &&
-      quantity &&
-      pricePerUnit &&
-      netWorth &&
-      cost &&
-      averageCost
-    ) {
-      expect(data).toContain(entity);
-      expect(data).toContain(name);
-      expect(data).toContain(quantity);
-      expect(data).toContain(pricePerUnit);
-      expect(data).toContain(netWorth);
-      expect(data).toContain(cost);
-      expect(data).toContain(averageCost);
-      expect(data).toContain(unrealized);
-    } else {
-      expect(data).toContain("ประเภท");
-      expect(data).toContain("รายการหุ้น");
-      expect(data).toContain("จำนวน (หน่วย)");
-      expect(data).toContain("ราคาตลาด (บาท)");
-      expect(data).toContain("มูลค่าปัจจุบัน (บาท)");
-      expect(data).toContain("ราคาต้นทุน (บาท)");
-      expect(data).toContain("ต้นทุนเฉลี่ย (บาท)");
-      expect(data).toContain("กำไร/ขาดทุน (Unrealized)");
-    }
-  }
-
-  async expectFundTable(
+    skip?: number,
     entity?: string,
     name?: string,
     quantity?: string,
@@ -381,6 +401,7 @@ export class AssetPage {
     unrealized?: string,
     order?: number,
   ) {
+    if (!skip) skip = 0;
     const data = await this.assetTable.allTextContents();
 
     if (
@@ -392,26 +413,73 @@ export class AssetPage {
       cost &&
       averageCost &&
       unrealized &&
-      order
+      order !== undefined
     ) {
-      const baseIndex = order * 9;
-      expect(data[baseIndex + 9]).toContain(entity);
-      expect(data[baseIndex + 10]).toContain(name);
-      expect(data[baseIndex + 11]).toContain(quantity);
-      expect(data[baseIndex + 12]).toContain(pricePerUnit);
-      expect(data[baseIndex + 13]).toContain(netWorth);
-      expect(data[baseIndex + 14]).toContain(cost);
-      expect(data[baseIndex + 15]).toContain(averageCost);
-      expect(data[baseIndex + 16]).toContain(unrealized);
+      const baseIndex = order * 9 + skip;
+      expect(data[baseIndex + 9]).toEqual(entity);
+      expect(data[baseIndex + 10]).toEqual(name);
+      expect(data[baseIndex + 11]).toEqual(quantity);
+      expect(data[baseIndex + 12]).toEqual(pricePerUnit);
+      expect(data[baseIndex + 13]).toEqual(netWorth);
+      expect(data[baseIndex + 14]).toEqual(cost);
+      expect(data[baseIndex + 15]).toEqual(averageCost);
+      expect(data[baseIndex + 16]).toEqual(unrealized);
     } else {
-      expect(data[0]).toContain("ประเภท");
-      expect(data[1]).toContain("รายการกองทุน");
-      expect(data[2]).toContain("จำนวน (หน่วย)");
-      expect(data[3]).toContain("NAV (บาท)");
-      expect(data[4]).toContain("มูลค่าปัจจุบัน (บาท)");
-      expect(data[5]).toContain("ราคาต้นทุน (บาท)");
-      expect(data[6]).toContain("มูลค่าเฉลี่ยต่อหน่วยลงทุน (บาท)");
-      expect(data[7]).toContain("กำไร/ขาดทุน (Unrealized)");
+      expect(data[0 + skip]).toEqual("ประเภท");
+      expect(data[1 + skip]).toEqual("รายการหุ้น");
+      expect(data[2 + skip]).toEqual("จำนวน (หน่วย)");
+      expect(data[3 + skip]).toEqual("ราคาตลาด (บาท)");
+      expect(data[4 + skip]).toEqual("มูลค่าปัจจุบัน (บาท)");
+      expect(data[5 + skip]).toEqual("ราคาต้นทุน (บาท)");
+      expect(data[6 + skip]).toEqual("ต้นทุนเฉลี่ย (บาท)");
+      expect(data[7 + skip]).toEqual("กำไร/ขาดทุน (Unrealized)");
+    }
+  }
+
+  async expectFundTable(
+    skip?: number,
+    entity?: string,
+    name?: string,
+    quantity?: string,
+    pricePerUnit?: string,
+    netWorth?: string,
+    cost?: string,
+    averageCost?: string,
+    unrealized?: string,
+    order?: number,
+  ) {
+    if (!skip) skip = 0;
+    const data = await this.assetTable.allTextContents();
+
+    if (
+      entity &&
+      name &&
+      quantity &&
+      pricePerUnit &&
+      netWorth &&
+      cost &&
+      averageCost &&
+      unrealized &&
+      order !== undefined
+    ) {
+      const baseIndex = order * 9 + skip;
+      expect(data[baseIndex + 9]).toEqual(entity);
+      expect(data[baseIndex + 10]).toEqual(name);
+      expect(data[baseIndex + 11]).toEqual(quantity);
+      expect(data[baseIndex + 12]).toEqual(pricePerUnit);
+      expect(data[baseIndex + 13]).toEqual(netWorth);
+      expect(data[baseIndex + 14]).toEqual(cost);
+      expect(data[baseIndex + 15]).toEqual(averageCost);
+      expect(data[baseIndex + 16]).toEqual(unrealized);
+    } else {
+      expect(data[0 + skip]).toEqual("ประเภท");
+      expect(data[1 + skip]).toEqual("รายการกองทุน");
+      expect(data[2 + skip]).toEqual("จำนวน (หน่วย)");
+      expect(data[3 + skip]).toEqual("NAV (บาท)");
+      expect(data[4 + skip]).toEqual("มูลค่าปัจจุบัน (บาท)");
+      expect(data[5 + skip]).toEqual("ราคาต้นทุน (บาท)");
+      expect(data[6 + skip]).toEqual("มูลค่าเฉลี่ยต่อหน่วยลงทุน (บาท)");
+      expect(data[7 + skip]).toEqual("กำไร/ขาดทุน (Unrealized)");
     }
   }
 
@@ -543,6 +611,43 @@ export class AssetPage {
     }
   }
 
+  async expectStockTransactionTable(
+    date?: string,
+    type?: string,
+    quantity?: string,
+    pricePerUnit?: string,
+    totalCost?: string,
+    realized?: string,
+    order?: number,
+  ) {
+    const data = await this.transactionTable.allTextContents();
+
+    if (
+      date &&
+      type &&
+      quantity &&
+      pricePerUnit &&
+      totalCost &&
+      realized &&
+      order !== undefined
+    ) {
+      const baseIndex = order * 7;
+      expect(data[baseIndex + 7]).toEqual(date);
+      expect(data[baseIndex + 8]).toEqual(type);
+      expect(data[baseIndex + 9]).toEqual(quantity);
+      expect(data[baseIndex + 10]).toEqual(pricePerUnit);
+      expect(data[baseIndex + 11]).toEqual(totalCost);
+      expect(data[baseIndex + 12]).toEqual(realized);
+    } else {
+      expect(data[0]).toContain("วันที่");
+      expect(data[1]).toContain("ประเภท");
+      expect(data[2]).toContain("จำนวน (หน่วย)");
+      expect(data[3]).toContain("ราคาตลาด (บาท)");
+      expect(data[4]).toContain("ราคารวม (บาท)");
+      expect(data[5]).toContain("กำไร/ขาดทุน (Realized)");
+    }
+  }
+
   async expectDetailMenu() {
     await expect(this.assetDetailButton).toBeVisible();
   }
@@ -571,6 +676,14 @@ export class AssetPage {
     await expect(this.saveTransactionButton).toBeVisible();
   }
 
+  async expectSellingStockFundForm() {
+    await expect(this.stockFundDateInput).toBeVisible();
+    await expect(this.stockFundTimeInput).toBeVisible();
+    await expect(this.stockFundPricePerUnitInput.nth(2)).toBeVisible();
+    await expect(this.stockFundQuantityInput.nth(3)).toBeVisible();
+    await expect(this.saveTransactionButton).toBeVisible();
+  }
+
   async expectBuyingGoldForm() {
     await expect(this.dateInput).toBeVisible();
     await expect(this.timeInput).toBeVisible();
@@ -582,8 +695,8 @@ export class AssetPage {
   async expectBuyingStockFundForm() {
     await expect(this.stockFundDateInput).toBeVisible();
     await expect(this.stockFundTimeInput).toBeVisible();
-    await expect(this.stockFundPricePerUnitInput).toBeVisible();
-    await expect(this.stockFundQuantityInput).toBeVisible();
+    await expect(this.stockFundPricePerUnitInput.nth(0)).toBeVisible();
+    await expect(this.stockFundQuantityInput.nth(1)).toBeVisible();
     await expect(this.saveTransactionButton).toBeVisible();
   }
 

@@ -500,7 +500,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const sellDate = "03/01/2026";
     const sellTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       sellDate,
       sellTime,
       sellPrice,
@@ -603,7 +603,7 @@ test.describe("Asset Aggregation - Gold", () => {
     await assetPage.clearData(1);
   });
 
-  test("TEST-AA-17: Display Delete Transaction Menu in Gold Transaction Page", async ({
+  test("TEST-AA-17: Display Delete Asset Menu in Gold Table in Gold Page", async ({
     navBar,
     assetPage,
     importPage,
@@ -795,7 +795,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const sellDate = "03/01/2026";
     const sellTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       sellDate,
       sellTime,
       sellPrice,
@@ -810,9 +810,11 @@ test.describe("Asset Aggregation - Gold", () => {
 
     const test1PricePerUnit: string = (await assetPage.getRecentPricePerUnit(
       0,
+      "gold",
     )) as string;
     const test2PricePerUnit: string = (await assetPage.getRecentPricePerUnit(
       1,
+      "gold",
     )) as string;
 
     const netWorth =
@@ -911,7 +913,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const sellDate = "03/01/2026";
     const sellTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       sellDate,
       sellTime,
       sellPrice,
@@ -926,9 +928,11 @@ test.describe("Asset Aggregation - Gold", () => {
 
     const test1PricePerUnit: string = (await assetPage.getRecentPricePerUnit(
       0,
+      "gold",
     )) as string;
     const test2PricePerUnit: string = (await assetPage.getRecentPricePerUnit(
       1,
+      "gold",
     )) as string;
 
     const netWorth =
@@ -1047,9 +1051,11 @@ test.describe("Asset Aggregation - Gold", () => {
 
     const pricePerUnit1: string = (await assetPage.getRecentPricePerUnit(
       0,
+      "gold",
     )) as string;
     const pricePerUnit2: string = (await assetPage.getRecentPricePerUnit(
       1,
+      "gold",
     )) as string;
 
     const networth1 = Number(pricePerUnit1.replace(/,/g, "")) * 2;
@@ -1096,6 +1102,7 @@ test.describe("Asset Aggregation - Gold", () => {
 
     //test output
     await assetPage.expectGoldTable(
+      0,
       entity1,
       `${name1} ${purity1}`,
       quantity1,
@@ -1107,6 +1114,7 @@ test.describe("Asset Aggregation - Gold", () => {
     );
 
     await assetPage.expectGoldTable(
+      0,
       entity2,
       `${name2} ${purity2}`,
       quantity2,
@@ -1116,6 +1124,8 @@ test.describe("Asset Aggregation - Gold", () => {
       `+${formattedUnrealized2}(+${formattedUnrealizedPercentage2}%)`,
       1,
     );
+
+    await assetPage.clearData(2);
   });
 
   test("TEST-AA-74: Ensure the correct of data of Gold Table when there is no transaction in Gold Page", async ({
@@ -1156,10 +1166,14 @@ test.describe("Asset Aggregation - Gold", () => {
     await assetPage.clickDeleteTransaction(0);
     await assetPage.clickCloseModalButton();
 
-    const pricePerUnit = (await assetPage.getRecentPricePerUnit(0)) as string;
+    const pricePerUnit = (await assetPage.getRecentPricePerUnit(
+      0,
+      "gold",
+    )) as string;
 
     //test output
     await assetPage.expectGoldTable(
+      0,
       entity,
       `${name} ${purity}`,
       "0.00",
@@ -1169,6 +1183,8 @@ test.describe("Asset Aggregation - Gold", () => {
       "+0.00(+0.00%)",
       0,
     );
+
+    await assetPage.clearData(1);
   });
 
   test("TEST-AA-75: Ensure the usable of Add Assets Button of Gold Table in Gold Page", async ({
@@ -1287,7 +1303,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const sellDate = "03/01/2026";
     const sellTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       sellDate,
       sellTime,
       sellPrice,
@@ -1368,7 +1384,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const buyDate = "03/01/2026";
     const buyTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       buyDate,
       buyTime,
       buyPrice,
@@ -1484,7 +1500,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const sellDate = "03/01/2026";
     const sellTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       sellDate,
       sellTime,
       sellPrice,
@@ -1518,7 +1534,6 @@ test.describe("Asset Aggregation - Gold", () => {
     importPage,
     page,
   }) => {
-    //test step
     //test step
     await navBar.clickImport();
     await importPage.clickManualImportButton();
@@ -1555,7 +1570,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const sellDate = "03/01/2026";
     const sellTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       sellDate,
       sellTime,
       sellPrice,
@@ -1575,7 +1590,6 @@ test.describe("Asset Aggregation - Gold", () => {
     importPage,
     page,
   }) => {
-    //test step
     //test step
     await navBar.clickImport();
     await importPage.clickManualImportButton();
@@ -1612,7 +1626,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const sellDate = "01/01/2026";
     const sellTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       sellDate,
       sellTime,
       sellPrice,
@@ -1669,6 +1683,7 @@ test.describe("Asset Aggregation - Gold", () => {
 
     const test1PricePerUnit: string = (await assetPage.getRecentPricePerUnit(
       0,
+      "gold",
     )) as string;
 
     await assetPage.clickTransactionPage(0);
@@ -1679,7 +1694,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const buyDate = "02/01/2026";
     const buyTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       buyDate,
       buyTime,
       buyPrice,
@@ -1695,7 +1710,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const sellDate = "03/01/2026";
     const sellTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       sellDate,
       sellTime,
       sellPrice,
@@ -1775,6 +1790,7 @@ test.describe("Asset Aggregation - Gold", () => {
 
     const test1PricePerUnit: string = (await assetPage.getRecentPricePerUnit(
       0,
+      "gold",
     )) as string;
 
     await assetPage.clickTransactionPage(0);
@@ -1785,7 +1801,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const buyDate = "02/01/2026";
     const buyTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       buyDate,
       buyTime,
       buyPrice,
@@ -1801,7 +1817,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const sellDate = "03/01/2026";
     const sellTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       sellDate,
       sellTime,
       sellPrice,
@@ -1876,7 +1892,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const sellDate = "03/01/2026";
     const sellTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       sellDate,
       sellTime,
       sellPrice,
@@ -1949,7 +1965,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const sellDate = "03/01/2026";
     const sellTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       sellDate,
       sellTime,
       sellPrice,
@@ -2013,7 +2029,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const sellDate = "03/01/2026";
     const sellTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       sellDate,
       sellTime,
       sellPrice,
@@ -2103,7 +2119,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const sellDate = "03/01/2026";
     const sellTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       sellDate,
       sellTime,
       sellPrice,
@@ -2180,7 +2196,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const sellDate = "02/01/2026";
     const sellTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       sellDate,
       sellTime,
       sellPrice,
@@ -2257,7 +2273,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const sellDate = "03/01/2026";
     const sellTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       sellDate,
       sellTime,
       sellPrice,
@@ -2334,7 +2350,7 @@ test.describe("Asset Aggregation - Gold", () => {
     const sellDate = "03/01/2026";
     const sellTime = "00:00";
 
-    await assetPage.fillTransactionForm(
+    await assetPage.fillGoldTransactionForm(
       sellDate,
       sellTime,
       sellPrice,
@@ -2373,7 +2389,6 @@ test.describe("Asset Aggregation - Gold", () => {
     navBar,
     assetPage,
     importPage,
-    page,
   }) => {
     //test step
     await navBar.clickImport();
