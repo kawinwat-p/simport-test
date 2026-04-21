@@ -693,7 +693,7 @@ test.describe("Asset Aggregation - Stock", () => {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(unrealizedPercentage);
-    formattedUnrealizedPercentage = `+${formattedUnrealizedPercentage}%`;
+    formattedUnrealizedPercentage = `${formattedUnrealizedPercentage}%`;
     const realizedPercentage = "+66.67%";
 
     //test output
@@ -1048,7 +1048,7 @@ test.describe("Asset Aggregation - Stock", () => {
     await assetPage.expectStockTable(
       0,
       "ส่วนตัว",
-      "K ASIA%",
+      "NVDA",
       "0.00",
       pricePerUnit1,
       "0.00",

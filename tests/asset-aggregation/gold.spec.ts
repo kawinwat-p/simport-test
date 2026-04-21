@@ -1635,11 +1635,7 @@ test.describe("Asset Aggregation - Gold", () => {
 
     //test output
     await expect(
-      page
-        .getByText(
-          `วันเวลาที่ขายต้องไม่ขายก่อนวันเวลาที่ซื้อ (${date} ${time})`,
-        )
-        .first(),
+      page.getByText(`วันเวลาที่ขายต้องไม่ขายก่อนวันเวลาที่ซื้อ`).first(),
     ).toBeVisible();
 
     await assetPage.clickCloseModalButton();

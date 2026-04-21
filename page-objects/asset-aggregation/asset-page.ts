@@ -241,8 +241,9 @@ export class AssetPage {
     return data[dataIndex + skip];
   }
 
-  async clickImportButton() {
-    await this.importButton.click();
+  async clickImportButton(order?: number) {
+    if (!order) order = 0;
+    await this.importButton.nth(order).click();
   }
 
   async fillGoldCalculator(
