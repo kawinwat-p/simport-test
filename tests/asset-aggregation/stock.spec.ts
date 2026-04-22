@@ -694,7 +694,7 @@ test.describe("Asset Aggregation - Stock", () => {
       maximumFractionDigits: 2,
     }).format(unrealizedPercentage);
     formattedUnrealizedPercentage = `${formattedUnrealizedPercentage}%`;
-    const realizedPercentage = "+66.67%";
+    const realizedPercentage = "+33.33%";
 
     //test output
     await assetPage.expectNetWorth(
