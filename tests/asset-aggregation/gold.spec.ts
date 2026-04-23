@@ -841,7 +841,7 @@ test.describe("Asset Aggregation - Gold", () => {
     //test output
     await assetPage.expectNetWorth(
       formattedNetWorth,
-      formattedUnrealized,
+      `${unrealized > 0 ? "+" : ""}${formattedUnrealized}`,
       realized,
       formattedUnrealizedPercentage,
       realizedPercentage,
@@ -959,7 +959,7 @@ test.describe("Asset Aggregation - Gold", () => {
     //test output
     await assetPage.expectNetWorth(
       formattedNetWorth,
-      formattedUnrealized,
+      `${unrealized > 0 ? "+" : ""}${formattedUnrealized}`,
       realized,
       formattedUnrealizedPercentage,
       realizedPercentage,
@@ -1109,7 +1109,7 @@ test.describe("Asset Aggregation - Gold", () => {
       pricePerUnit1,
       formattedNetWorth1,
       formattedCost1,
-      `+${formattedUnrealized1}(+${formattedUnrealizedPercentage1}%)`,
+      `${unrealized1 > 0 ? "+" : ""}${formattedUnrealized1}(${unrealizedPercentage1 > 0 ? "+" : ""}${formattedUnrealizedPercentage1}%)`,
       0,
     );
 
@@ -1121,7 +1121,7 @@ test.describe("Asset Aggregation - Gold", () => {
       pricePerUnit2,
       formattedNetWorth2,
       formattedCost2,
-      `+${formattedUnrealized2}(+${formattedUnrealizedPercentage2}%)`,
+      `${unrealized2 > 0 ? "+" : ""}${formattedUnrealized2}(${unrealizedPercentage2 > 0 ? "+" : ""}${formattedUnrealizedPercentage2}%)`,
       1,
     );
 
@@ -1162,14 +1162,15 @@ test.describe("Asset Aggregation - Gold", () => {
 
     await navBar.clickGold();
     await page.waitForTimeout(2000);
-    await assetPage.clickDetailPage(0);
-    await assetPage.clickDeleteTransaction(0);
-    await assetPage.clickCloseModalButton();
 
     const pricePerUnit = (await assetPage.getRecentPricePerUnit(
       0,
       "gold",
     )) as string;
+
+    await assetPage.clickDetailPage(0);
+    await assetPage.clickDeleteTransaction(0);
+    await assetPage.clickCloseModalButton();
 
     //test output
     await assetPage.expectGoldTable(

@@ -171,6 +171,7 @@ export class AssetPage {
       /ant-btn-loading/,
     );
     await this.confirmDeleteAssetButton.click();
+    await this.page.waitForTimeout(2000);
   }
 
   async clickCancelButton() {

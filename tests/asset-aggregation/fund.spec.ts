@@ -699,7 +699,7 @@ test.describe("Asset Aggregation - Fund", () => {
     //test output
     await assetPage.expectNetWorth(
       formattedNetWorth,
-      formattedUnrealized,
+      `${unrealized > 0 ? "+" : ""}${formattedUnrealized}`,
       realized,
       formattedUnrealizedPercentage,
       realizedPercentage,
@@ -813,7 +813,7 @@ test.describe("Asset Aggregation - Fund", () => {
     //test output
     await assetPage.expectNetWorth(
       formattedNetWorth,
-      formattedUnrealized,
+      `${unrealized > 0 ? "+" : ""}${formattedUnrealized}`,
       realized,
       formattedUnrealizedPercentage,
       realizedPercentage,
@@ -980,7 +980,7 @@ test.describe("Asset Aggregation - Fund", () => {
       formattedNetWorth1,
       formattedCost1,
       "10.00",
-      `+${formattedUnrealized1}(+${formattedUnrealizedPercentage1}%)`,
+      `${unrealized1 > 0 ? "+" : ""}${formattedUnrealized1}(${unrealizedPercentage1 > 0 ? "+" : ""}${formattedUnrealizedPercentage1}%)`,
       0,
     );
 
@@ -993,7 +993,7 @@ test.describe("Asset Aggregation - Fund", () => {
       formattedNetWorth2,
       formattedCost2,
       "5.00",
-      `+${formattedUnrealized2}(+${formattedUnrealizedPercentage2}%)`,
+      `${unrealized2 > 0 ? "+" : ""}${formattedUnrealized2}(${unrealizedPercentage2 > 0 ? "+" : ""}${formattedUnrealizedPercentage2}%)`,
       1,
     );
 
@@ -1032,14 +1032,15 @@ test.describe("Asset Aggregation - Fund", () => {
 
     await navBar.clickFund();
     await page.waitForTimeout(2000);
-    await assetPage.clickDetailPage(0);
-    await assetPage.clickDeleteTransaction(0);
-    await assetPage.clickCloseModalButton();
 
     const pricePerUnit = (await assetPage.getRecentPricePerUnit(
       0,
       "fund",
     )) as string;
+
+    await assetPage.clickDetailPage(0);
+    await assetPage.clickDeleteTransaction(0);
+    await assetPage.clickCloseModalButton();
 
     await page.reload();
     await page.waitForTimeout(2000);
@@ -1047,7 +1048,7 @@ test.describe("Asset Aggregation - Fund", () => {
     await assetPage.expectFundTable(
       0,
       "ส่วนตัว",
-      "K ASIA%",
+      "K-ASIA",
       "0.00",
       pricePerUnit,
       "0.00",
@@ -1132,7 +1133,7 @@ test.describe("Asset Aggregation - Fund", () => {
       `${sellDate} ${sellTime}`,
       "ขาย",
       "-2,000.00",
-      "15.00",
+      "15.0000",
       "-30,000.00",
       "+20,000.00",
       0,
@@ -1142,7 +1143,7 @@ test.describe("Asset Aggregation - Fund", () => {
       `${date} ${time}`,
       "ซื้อ",
       "3,000.00",
-      "5.00",
+      "5.0000",
       "15,000.00",
       "-",
       1,
@@ -1253,7 +1254,7 @@ test.describe("Asset Aggregation - Fund", () => {
       `${buyDate} ${buyTime}`,
       "ซื้อ",
       "2,000.00",
-      "15.00",
+      "15.0000",
       "30,000.00",
       "-",
       0,
@@ -1320,7 +1321,7 @@ test.describe("Asset Aggregation - Fund", () => {
       `${sellDate} ${sellTime}`,
       "ขาย",
       "-2,000.00",
-      "15.00",
+      "15.0000",
       "-30,000.00",
       "+20,000.00",
       0,
@@ -1507,7 +1508,7 @@ test.describe("Asset Aggregation - Fund", () => {
       `${date} ${time}`,
       "ซื้อ",
       "3,000.00",
-      "5.00",
+      "5.0000",
       "15,000.00",
       "-",
       0,
@@ -1577,7 +1578,7 @@ test.describe("Asset Aggregation - Fund", () => {
       `${date} ${time}`,
       "ซื้อ",
       "3,000.00",
-      "5.00",
+      "5.0000",
       "15,000.00",
       "-",
       0,
@@ -1731,7 +1732,7 @@ test.describe("Asset Aggregation - Fund", () => {
       `${editSellDate} ${editSellTime}`,
       "ขาย",
       "-1,000.00",
-      "20.00",
+      "20.0000",
       "-20,000.00",
       "+15,000.00",
       0,

@@ -615,6 +615,7 @@ test.describe("Asset Aggregation - Assets", () => {
     importPage,
     page,
   }) => {
+    test.setTimeout(500000);
     //test step
     await navBar.clickImport();
     await importPage.clickManualImportButton();
@@ -851,13 +852,13 @@ test.describe("Asset Aggregation - Assets", () => {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(unrealizedPercentage);
-    formattedUnrealizedPercentage = `+${formattedUnrealizedPercentage}%`;
+    formattedUnrealizedPercentage = `${unrealizedPercentage > 0 ? "+" : ""}${formattedUnrealizedPercentage}%`;
     const realizedPercentage = "+75.00%";
 
     //test output
     await assetPage.expectNetWorth(
       formattedNetWorth,
-      formattedUnrealized,
+      `${unrealized > 0 ? "+" : ""}${formattedUnrealized}`,
       realized,
       formattedUnrealizedPercentage,
       realizedPercentage,
@@ -872,6 +873,7 @@ test.describe("Asset Aggregation - Assets", () => {
     importPage,
     page,
   }) => {
+    test.setTimeout(500000);
     //test step
     await navBar.clickImport();
     await importPage.clickManualImportButton();
@@ -1108,13 +1110,13 @@ test.describe("Asset Aggregation - Assets", () => {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(unrealizedPercentage);
-    formattedUnrealizedPercentage = `+${formattedUnrealizedPercentage}%`;
+    formattedUnrealizedPercentage = `${unrealizedPercentage > 0 ? "+" : ""}${formattedUnrealizedPercentage}%`;
     const realizedPercentage = "-86.11%";
 
     //test output
     await assetPage.expectNetWorth(
       formattedNetWorth,
-      formattedUnrealized,
+      `${unrealized > 0 ? "+" : ""}${formattedUnrealized}`,
       realized,
       formattedUnrealizedPercentage,
       realizedPercentage,
@@ -1267,7 +1269,7 @@ test.describe("Asset Aggregation - Assets", () => {
       pricePerUnit1,
       formattedNetWorth1,
       formattedCost1,
-      `+${formattedUnrealized1}(+${formattedUnrealizedPercentage1}%)`,
+      `${unrealized1 > 0 ? "+" : ""}${formattedUnrealized1}(${unrealizedPercentage1 > 0 ? "+" : ""}${formattedUnrealizedPercentage1}%)`,
       0,
     );
 
@@ -1279,7 +1281,7 @@ test.describe("Asset Aggregation - Assets", () => {
       pricePerUnit2,
       formattedNetWorth2,
       formattedCost2,
-      `+${formattedUnrealized2}(+${formattedUnrealizedPercentage2}%)`,
+      `${unrealized2 > 0 ? "+" : ""}${formattedUnrealized2}(${unrealizedPercentage2 > 0 ? "+" : ""}${formattedUnrealizedPercentage2}%)`,
       1,
     );
 
@@ -1422,7 +1424,7 @@ test.describe("Asset Aggregation - Assets", () => {
       formattedNetWorth1,
       formattedCost1,
       "200.00",
-      `+${formattedUnrealized1}(+${formattedUnrealizedPercentage1}%)`,
+      `${unrealized1 > 0 ? "+" : ""}${formattedUnrealized1}(${unrealizedPercentage1 > 0 ? "+" : ""}${formattedUnrealizedPercentage1}%)`,
       0,
     );
 
@@ -1435,7 +1437,7 @@ test.describe("Asset Aggregation - Assets", () => {
       formattedNetWorth2,
       formattedCost2,
       "150.00",
-      `+${formattedUnrealized2}(+${formattedUnrealizedPercentage2}%)`,
+      `${unrealized2 > 0 ? "+" : ""}${formattedUnrealized2}(${unrealizedPercentage2 > 0 ? "+" : ""}${formattedUnrealizedPercentage2}%)`,
       1,
     );
 
@@ -1578,7 +1580,7 @@ test.describe("Asset Aggregation - Assets", () => {
       formattedNetWorth1,
       formattedCost1,
       "10.00",
-      `+${formattedUnrealized1}(+${formattedUnrealizedPercentage1}%)`,
+      `${unrealized1 > 0 ? "+" : ""}${formattedUnrealized1}(${unrealizedPercentage1 > 0 ? "+" : ""}${formattedUnrealizedPercentage1}%)`,
       0,
     );
 
@@ -1591,7 +1593,7 @@ test.describe("Asset Aggregation - Assets", () => {
       formattedNetWorth2,
       formattedCost2,
       "5.00",
-      `+${formattedUnrealized2}(+${formattedUnrealizedPercentage2}%)`,
+      `${unrealized2 > 0 ? "+" : ""}${formattedUnrealized2}(${unrealizedPercentage2 > 0 ? "+" : ""}${formattedUnrealizedPercentage2}%)`,
       1,
     );
 

@@ -699,7 +699,7 @@ test.describe("Asset Aggregation - Stock", () => {
     //test output
     await assetPage.expectNetWorth(
       formattedNetWorth,
-      formattedUnrealized,
+      `${unrealized > 0 ? "+" : ""}${formattedUnrealized}`,
       realized,
       formattedUnrealizedPercentage,
       realizedPercentage,
@@ -814,7 +814,7 @@ test.describe("Asset Aggregation - Stock", () => {
     //test output
     await assetPage.expectNetWorth(
       formattedNetWorth,
-      formattedUnrealized,
+      `${unrealized > 0 ? "+" : ""}${formattedUnrealized}`,
       realized,
       formattedUnrealizedPercentage,
       realizedPercentage,
@@ -981,7 +981,7 @@ test.describe("Asset Aggregation - Stock", () => {
       formattedNetWorth1,
       formattedCost1,
       "200.00",
-      `+${formattedUnrealized1}(+${formattedUnrealizedPercentage1}%)`,
+      `${unrealized1 > 0 ? "+" : ""}${formattedUnrealized1}(${unrealizedPercentage1 > 0 ? "+" : ""}${formattedUnrealizedPercentage1}%)`,
       0,
     );
 
@@ -994,7 +994,7 @@ test.describe("Asset Aggregation - Stock", () => {
       formattedNetWorth2,
       formattedCost2,
       "150.00",
-      `+${formattedUnrealized2}(+${formattedUnrealizedPercentage2}%)`,
+      `${unrealized2 > 0 ? "+" : ""}${formattedUnrealized2}(${unrealizedPercentage2 > 0 ? "+" : ""}${formattedUnrealizedPercentage2}%)`,
       1,
     );
 
@@ -1033,14 +1033,15 @@ test.describe("Asset Aggregation - Stock", () => {
 
     await navBar.clickStock();
     await page.waitForTimeout(2000);
-    await assetPage.clickDetailPage(0);
-    await assetPage.clickDeleteTransaction(0);
-    await assetPage.clickCloseModalButton();
 
     const pricePerUnit1 = (await assetPage.getRecentPricePerUnit(
       0,
       "stock",
     )) as string;
+
+    await assetPage.clickDetailPage(0);
+    await assetPage.clickDeleteTransaction(0);
+    await assetPage.clickCloseModalButton();
 
     await page.reload();
     await page.waitForTimeout(2000);
