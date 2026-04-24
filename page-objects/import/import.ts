@@ -26,6 +26,7 @@ export class ImportPage {
   private readonly fundNAVInput: Locator;
   private readonly fundQuantityInput: Locator;
 
+  private readonly aiNameInput: Locator;
   private readonly aiPricePerUnitInput: Locator;
   private readonly aiQuantityInput: Locator;
   private readonly aiEntityInput: Locator;
@@ -38,6 +39,7 @@ export class ImportPage {
   private readonly importAgainButton: Locator;
   private readonly closeModalButton: Locator;
   private readonly modal: Locator;
+  private readonly confirmDeleteButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -81,15 +83,19 @@ export class ImportPage {
     this.importAgainButton = page.getByRole("button", {
       name: "อัปโหลดอีกครั้ง",
     });
-    this.aiPricePerUnitInput = page
-      .locator('.ant-form-item:has(label:has-text("ราคาต่อหน่วย")) input')
-      .first();
-    this.aiQuantityInput = page
-      .locator('.ant-form-item:has(label:has-text("จำนวนหน่วย")) input')
-      .first();
-    this.aiEntityInput = page
-      .locator('.ant-form-item:has(label:has-text("ประเภททรัพย์สิน")) input')
-      .first();
+    this.aiNameInput = page.locator(".ant-select-selection-item");
+    this.aiPricePerUnitInput = page.locator(
+      '.ant-form-item:has(label:has-text("ราคาต่อหน่วย")) input',
+    );
+    this.aiQuantityInput = page.locator(
+      '.ant-form-item:has(label:has-text("จำนวนหน่วย")) input',
+    );
+    this.aiEntityInput = page.locator(
+      '.ant-form-item:has(label:has-text("ประเภททรัพย์สิน")) input',
+    );
+    this.confirmDeleteButton = page.getByRole("button", {
+      name: "ลบรายการ",
+    });
   }
 
   // Actions
@@ -176,6 +182,7 @@ export class ImportPage {
   }
 
   async clickSaveButton() {
+    await expect(this.saveButton).toBeEnabled();
     await this.saveButton.click();
     await this.page.waitForTimeout(2000);
     await this.closeModalButton.click();
@@ -196,6 +203,7 @@ export class ImportPage {
 
   async clickDeleteButton(order: number) {
     await this.deleteButton.nth(order).click({ timeout: 500000 });
+    await this.confirmDeleteButton.click();
   }
 
   async uploadFile(path: string) {
@@ -271,18 +279,13 @@ export class ImportPage {
       pricePerUnit !== undefined &&
       quantity !== undefined
     ) {
-      await expect(this.dateInput.nth(order)).toContainText(date);
-      await expect(this.timeInput.nth(order)).toContainText(time);
-      if (type == "stock") {
-        await expect(this.stockNameInput.nth(order)).toContainText(name);
-      }
-      if (type == "fund") {
-        await expect(this.fundNameInput.nth(order)).toContainText(name);
-      }
-      await expect(this.aiPricePerUnitInput.nth(order)).toContainText(
+      await expect(this.timeInput.nth(order)).toHaveValue(time);
+      await expect(this.dateInput.nth(order)).toHaveValue(date);
+      await expect(this.aiNameInput.nth(order)).toHaveText(name);
+      await expect(this.aiPricePerUnitInput.nth(order)).toHaveValue(
         pricePerUnit,
       );
-      await expect(this.aiQuantityInput.nth(order)).toContainText(quantity);
+      await expect(this.aiQuantityInput.nth(order)).toHaveValue(quantity);
     } else {
       await expect(this.dateInput.nth(order)).toBeVisible();
       await expect(this.timeInput.nth(order)).toBeVisible();

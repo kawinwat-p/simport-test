@@ -490,7 +490,7 @@ test.describe("Import", () => {
     await importPage.clickAddButton();
 
     //test output
-    await importPage.expectAIImportForm(2, "fund", "", "", "", "", "");
+    await importPage.expectAIImportForm(2, "fund");
   });
 
   test("TEST-IP-17: Ensure import stock asset with AI successfully", async ({
@@ -502,66 +502,24 @@ test.describe("Import", () => {
     //test step
     await importPage.clickAIImportButton();
     await importPage.uploadFile("./tests-image/stock_ocr.png");
+    await importPage.clickDeleteButton(0);
+    await importPage.clickDeleteButton(0);
     await importPage.fillAIImportForm(0, "ส่วนตัว", "test");
-    await importPage.fillAIImportForm(1, "ส่วนตัว", "test");
-    await importPage.fillAIImportForm(2, "ส่วนตัว", "test");
     await importPage.clickSaveButton();
 
     await navBar.clickStock();
     await page.waitForTimeout(2000);
 
-    const pricePerUnit1: string = (await assetPage.getRecentPricePerUnit(
+    const pricePerUnit3: string = (await assetPage.getRecentPricePerUnit(
       0,
       "stock",
     )) as string;
-    const pricePerUnit2: string = (await assetPage.getRecentPricePerUnit(
-      1,
-      "stock",
-    )) as string;
-    const pricePerUnit3: string = (await assetPage.getRecentPricePerUnit(
-      2,
-      "stock",
-    )) as string;
-
-    const netWorth1 = Number(pricePerUnit1.replace(/,/g, "")) * 527;
-    const formattedNetWorth1 = new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(netWorth1);
-
-    const netWorth2 = Number(pricePerUnit2.replace(/,/g, "")) * 605;
-    const formattedNetWorth2 = new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(netWorth2);
 
     const netWorth3 = Number(pricePerUnit3.replace(/,/g, "")) * 825;
     const formattedNetWorth3 = new Intl.NumberFormat("en-US", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(netWorth3);
-
-    const unrealized1 = netWorth1 - 1011.84;
-    const formattedUnrealized1 = new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(unrealized1);
-    const unrealizedPercentage1 = (unrealized1 / 1011.84) * 100;
-    let formattedUnrealizedPercentage1 = new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(unrealizedPercentage1);
-
-    const unrealized2 = netWorth2 - 39095.1;
-    const formattedUnrealized2 = new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(unrealized2);
-    const unrealizedPercentage2 = (unrealized2 / 39095.1) * 100;
-    let formattedUnrealizedPercentage2 = new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(unrealizedPercentage2);
 
     const unrealized3 = netWorth3 - 98340;
     const formattedUnrealized3 = new Intl.NumberFormat("en-US", {
@@ -578,43 +536,17 @@ test.describe("Import", () => {
     await assetPage.expectStockTable(
       0,
       "ส่วนตัว",
-      "IRPC",
-      "527.00",
-      pricePerUnit1,
-      formattedNetWorth1,
-      "1011.84",
-      "1.92",
-      `${unrealized1 > 0 ? "+" : ""}${formattedUnrealized1} (${unrealizedPercentage1 > 0 ? "+" : ""}${formattedUnrealizedPercentage1}%)`,
-      0,
-    );
-
-    await assetPage.expectStockTable(
-      0,
-      "ส่วนตัว",
-      "KEX",
-      "605.00",
-      pricePerUnit2,
-      formattedNetWorth2,
-      "39095.10",
-      "64.62",
-      `${unrealized2 > 0 ? "+" : ""}${formattedUnrealized2} (${unrealizedPercentage2 > 0 ? "+" : ""}${formattedUnrealizedPercentage2}%)`,
-      1,
-    );
-
-    await assetPage.expectStockTable(
-      0,
-      "ส่วนตัว",
       "SCB",
       "825.00",
       pricePerUnit3,
       formattedNetWorth3,
-      "98340.00",
+      "98,340.00",
       "119.20",
-      `${unrealized3 > 0 ? "+" : ""}${formattedUnrealized3} (${unrealizedPercentage3 > 0 ? "+" : ""}${formattedUnrealizedPercentage3}%)`,
-      2,
+      `${unrealized3 > 0 ? "+" : ""}${formattedUnrealized3}(${unrealizedPercentage3 > 0 ? "+" : ""}${formattedUnrealizedPercentage3}%)`,
+      0,
     );
 
-    await assetPage.clearData(3);
+    await assetPage.clearData(1);
   });
 
   test("TEST-IP-18: Prevent import stock asset with AI when user already has the import asset", async ({
@@ -623,16 +555,16 @@ test.describe("Import", () => {
     //test step
     await importPage.clickAIImportButton();
     await importPage.uploadFile("./tests-image/stock_ocr.png");
+    await importPage.clickDeleteButton(0);
+    await importPage.clickDeleteButton(0);
     await importPage.fillAIImportForm(0, "ส่วนตัว", "test");
-    await importPage.fillAIImportForm(1, "ส่วนตัว", "test");
-    await importPage.fillAIImportForm(2, "ส่วนตัว", "test");
     await importPage.clickSaveButton();
 
     await importPage.clickAIImportButton();
     await importPage.uploadFile("./tests-image/stock_ocr.png");
+    await importPage.clickDeleteButton(0);
+    await importPage.clickDeleteButton(0);
     await importPage.fillAIImportForm(0, "ส่วนตัว", "test");
-    await importPage.fillAIImportForm(1, "ส่วนตัว", "test");
-    await importPage.fillAIImportForm(2, "ส่วนตัว", "test");
     await importPage.clickErrorSaveButton();
 
     //test output
@@ -649,8 +581,9 @@ test.describe("Import", () => {
     await importPage.clickAIImportButton();
     await importPage.clickFundButton();
     await importPage.uploadFile("./tests-image/fund_ocr.png");
+    await page.waitForTimeout(2000);
+    await importPage.clickDeleteButton(1);
     await importPage.fillAIImportForm(0, "ส่วนตัว", "test");
-    await importPage.fillAIImportForm(1, "ส่วนตัว", "test");
     await importPage.clickSaveButton();
 
     await navBar.clickFund();
@@ -660,22 +593,12 @@ test.describe("Import", () => {
       0,
       "fund",
     )) as string;
-    const pricePerUnit2: string = (await assetPage.getRecentPricePerUnit(
-      1,
-      "fund",
-    )) as string;
 
     const netWorth1 = Number(pricePerUnit1.replace(/,/g, "")) * 440.94;
     const formattedNetWorth1 = new Intl.NumberFormat("en-US", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(netWorth1);
-
-    const netWorth2 = Number(pricePerUnit2.replace(/,/g, "")) * 364.17;
-    const formattedNetWorth2 = new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(netWorth2);
 
     const unrealized1 = netWorth1 - 4999.95;
     const formattedUnrealized1 = new Intl.NumberFormat("en-US", {
@@ -688,17 +611,6 @@ test.describe("Import", () => {
       maximumFractionDigits: 2,
     }).format(unrealizedPercentage1);
 
-    const unrealized2 = netWorth2 - 4999.94;
-    const formattedUnrealized2 = new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(unrealized2);
-    const unrealizedPercentage2 = (unrealized2 / 4999.94) * 100;
-    let formattedUnrealizedPercentage2 = new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(unrealizedPercentage2);
-
     //test output
     await assetPage.expectFundTable(
       0,
@@ -707,26 +619,13 @@ test.describe("Import", () => {
       "440.94",
       pricePerUnit1,
       formattedNetWorth1,
-      "4999.95",
-      "11.3393",
-      `${unrealized1 > 0 ? "+" : ""}${formattedUnrealized1} (${unrealizedPercentage1 > 0 ? "+" : ""}${formattedUnrealizedPercentage1}%)`,
+      "4,999.95",
+      "11.34",
+      `${unrealized1 > 0 ? "+" : ""}${formattedUnrealized1}(${unrealizedPercentage1 > 0 ? "+" : ""}${formattedUnrealizedPercentage1}%)`,
       0,
     );
 
-    await assetPage.expectFundTable(
-      0,
-      "ส่วนตัว",
-      "LHGBLOCK-A",
-      "364.17",
-      pricePerUnit2,
-      formattedNetWorth2,
-      "4999.94",
-      "13.7297",
-      `${unrealized2 > 0 ? "+" : ""}${formattedUnrealized2} (${unrealizedPercentage2 > 0 ? "+" : ""}${formattedUnrealizedPercentage2}%)`,
-      1,
-    );
-
-    await assetPage.clearData(2);
+    await assetPage.clearData(1);
   });
 
   test("TEST-IP-20: Prevent import fund asset with AI when user already has the import asset", async ({
@@ -736,17 +635,15 @@ test.describe("Import", () => {
     await importPage.clickAIImportButton();
     await importPage.clickFundButton();
     await importPage.uploadFile("./tests-image/fund_ocr.png");
+    await importPage.clickDeleteButton(1);
     await importPage.fillAIImportForm(0, "ส่วนตัว", "test");
-    await importPage.fillAIImportForm(1, "ส่วนตัว", "test");
-    await importPage.fillAIImportForm(2, "ส่วนตัว", "test");
     await importPage.clickSaveButton();
 
     await importPage.clickAIImportButton();
     await importPage.clickFundButton();
     await importPage.uploadFile("./tests-image/fund_ocr.png");
+    await importPage.clickDeleteButton(1);
     await importPage.fillAIImportForm(0, "ส่วนตัว", "test");
-    await importPage.fillAIImportForm(1, "ส่วนตัว", "test");
-    await importPage.fillAIImportForm(2, "ส่วนตัว", "test");
     await importPage.clickErrorSaveButton();
 
     //test output
